@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
             
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
-    // Gerencia qual tela está ativa e a fila de pacientes.
     const state = {
         currentPage: 'login', // 'login', 'triage', 'result', 'dashboard'
         patientQueue: [
-            // Exemplo de dados iniciais para popular o painel
             { id: 1, name: 'Carlos Pereira', priority: 'Média', priorityLevel: 2, symptoms: ['Tosse persistente', 'Febre baixa'], arrivalTime: new Date(Date.now() - 30 * 60000) },
             { id: 2, name: 'Ana Souza', priority: 'Baixa', priorityLevel: 1, symptoms: ['Renovação de receita'], arrivalTime: new Date(Date.now() - 45 * 60000) },
             { id: 3, name: 'Juliana Costa', priority: 'Alta', priorityLevel: 3, symptoms: ['Dor no peito', 'Falta de ar'], arrivalTime: new Date(Date.now() - 10 * 60000) },
@@ -27,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: 'Stethoscope',
             options: [
                 { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' },
-                { text: 'Consulta de retorno', value: 2, next: 'return' },
-                { text: 'Renovação de receita', value: 0, next: 'prescription' },
-                { text: 'Exames de rotina', value: 0, next: 'routine' }
+                { text: 'Consulta de retorno', value: 3, next: 'final' }, // CORREÇÃO: Valor e 'next' ajustados
+                { text: 'Renovação de receita', value: 1, next: 'final' }, // CORREÇÃO: Valor e 'next' ajustados
+                { text: 'Exames de rotina', value: 1, next: 'final' }    // CORREÇÃO: Valor e 'next' ajustados
             ]
         },
         'symptoms': {
@@ -40,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 { text: 'Febre alta (acima de 38.5°C)', value: 5, next: 'pain' },
                 { text: 'Sangramento incomum', value: 8, next: 'pain' },
                 { text: 'Nenhum dos anteriores', value: 0, next: 'pain' }
+            ]
+        },
+        'fever': { // Adicionando a pergunta 'fever' que estava faltando na lógica
+            text: 'Você tem febre?',
+            icon: 'Thermometer',
+            options: [
+                { text: 'Sim', value: 3, next: 'pain' },
+                { text: 'Não', value: 0, next: 'pain' }
             ]
         },
         'pain': {
@@ -58,15 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 { text: 'Sim', value: 2, next: 'final' },
                 { text: 'Não', value: 0, next: 'final' }
             ]
-        },
-            'return': { text: 'Consulta de retorno.', isFinal: true, score: 3 },
-            'prescription': { text: 'Renovação de receita.', isFinal: true, score: 1 },
-            'routine': { text: 'Exames de rotina.', isFinal: true, score: 1 },
+        }
     };
 
     // --- LÓGICA DE RENDERIZAÇÃO ---
     function render() {
-        appContainer.innerHTML = ''; // Limpa a tela
+        appContainer.innerHTML = '';
         let content = '';
 
         switch (state.currentPage) {
@@ -81,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'dashboard':
                 content = renderDashboardScreen();
-                // Simula um carregamento para o painel
                 setTimeout(() => {
                     const dashboardContent = document.getElementById('dashboard-content');
                     if(dashboardContent) {
@@ -93,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         appContainer.innerHTML = content;
-        attachEventListeners(); // Anexa os ouvintes de evento para a nova tela
-        lucide.createIcons(); // Renderiza os ícones
+        attachEventListeners();
+        lucide.createIcons();
     }
 
     // --- GERADORES DE CONTEÚDO HTML (VIEWS) ---
@@ -133,15 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTriageScreen(questionId) {
         const question = triageQuestions[questionId];
         
-        if (!question) {
-            return calculateAndShowResult();
-        }
-
-        if(question.isFinal) {
-            state.currentTriage.score += question.score;
-            return calculateAndShowResult();
-        }
-
         const optionsHtml = question.options.map(opt => `
             <button data-action="answer-triage" data-value="${opt.value}" data-next="${opt.next}" class="w-full text-left bg-white p-4 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 flex items-center gap-4">
                  <i data-lucide="${question.icon}" class="text-blue-600"></i>
@@ -215,7 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
             symptoms: Object.values(state.currentTriage.answers),
             arrivalTime: new Date()
         };
-        state.patientQueue.push(newPatient);
+        // Evita adicionar pacientes duplicados se o usuário voltar e refizer
+        if (!state.patientQueue.some(p => p.id === newPatient.id)) {
+            state.patientQueue.push(newPatient);
+        }
 
         return `
             <header class="bg-white shadow-sm">
@@ -357,13 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function attachDashboardListeners() {
         const callButtons = document.querySelectorAll('[data-action="call-patient"]');
         callButtons.forEach(button => button.addEventListener('click', callPatient));
-        lucide.createIcons(); // Re-renderiza ícones no painel
+        lucide.createIcons();
     }
 
     function startTriage() {
         state.currentUser = 'patient';
         state.currentPage = 'triage';
-        // Reseta a triagem anterior
         state.currentTriage = { answers: {}, score: 0, patientName: '' };
         render();
     }
@@ -384,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInput = document.getElementById('patient-name-input');
         if (nameInput && nameInput.value.trim() !== '') {
             state.currentTriage.patientName = nameInput.value.trim();
-            render(); // Re-renderiza a tela de triagem, agora mostrando a primeira pergunta
+            render();
         } else {
             alert('Por favor, digite seu nome para continuar.');
         }
@@ -398,10 +393,13 @@ document.addEventListener('DOMContentLoaded', () => {
         state.currentTriage.score += value;
         state.currentTriage.answers[nextQuestionId] = target.querySelector('span').textContent;
 
+        // CORREÇÃO PRINCIPAL AQUI:
+        // Se a próxima etapa for 'final', chama a tela de resultado.
+        // Caso contrário, renderiza a próxima pergunta.
         if (nextQuestionId === 'final') {
             calculateAndShowResult();
         } else {
-            renderTriageScreen(nextQuestionId);
+            // Limpa o conteúdo e renderiza a próxima pergunta
             appContainer.innerHTML = renderTriageScreen(nextQuestionId);
             attachEventListeners();
             lucide.createIcons();
@@ -410,9 +408,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function callPatient(event) {
         const patientId = parseInt(event.currentTarget.dataset.id, 10);
-        // Filtra a fila, removendo o paciente chamado
         state.patientQueue = state.patientQueue.filter(p => p.id !== patientId);
-        // Re-renderiza o conteúdo do painel
+        
         const dashboardContent = document.getElementById('dashboard-content');
         if(dashboardContent) {
            dashboardContent.innerHTML = renderDashboardContent();
