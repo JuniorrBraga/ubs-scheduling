@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: 'Stethoscope',
             options: [
                 { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' },
-                { text: 'Consulta de retorno', value: 3, next: 'final' }, // CORREÇÃO: Valor e 'next' ajustados
-                { text: 'Renovação de receita', value: 1, next: 'final' }, // CORREÇÃO: Valor e 'next' ajustados
-                { text: 'Exames de rotina', value: 1, next: 'final' }    // CORREÇÃO: Valor e 'next' ajustados
+                { text: 'Consulta de retorno', value: 3, next: 'final' },
+                { text: 'Renovação de receita', value: 1, next: 'final' },
+                { text: 'Exames de rotina', value: 1, next: 'final' }
             ]
         },
         'symptoms': {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { text: 'Nenhum dos anteriores', value: 0, next: 'pain' }
             ]
         },
-        'fever': { // Adicionando a pergunta 'fever' que estava faltando na lógica
+        'fever': {
             text: 'Você tem febre?',
             icon: 'Thermometer',
             options: [
@@ -104,12 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderLoginScreen() {
         return `
             <header class="bg-white shadow-sm">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-center">
+                    <!-- LOGO -->
                     <div class="flex items-center gap-3">
-                        <div class="bg-blue-600 p-2 rounded-lg">
-                            <i data-lucide="HeartPulse" class="text-white"></i>
+                        <div class="bg-blue-600 p-3 rounded-xl shadow-md">
+                            <i data-lucide="HeartPulse" class="text-white h-7 w-7"></i>
                         </div>
-                        <h1 class="text-2xl font-bold text-blue-600">UBS Atendimentos</h1>
+                        <div class="flex flex-col">
+                            <h1 class="text-2xl font-bold text-blue-600 leading-tight">UBS</h1>
+                            <p class="text-lg font-medium text-slate-600 leading-tight">Atendimentos</p>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -208,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
             symptoms: Object.values(state.currentTriage.answers),
             arrivalTime: new Date()
         };
-        // Evita adicionar pacientes duplicados se o usuário voltar e refizer
         if (!state.patientQueue.some(p => p.id === newPatient.id)) {
             state.patientQueue.push(newPatient);
         }
@@ -246,13 +249,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderDashboardScreen() {
         return `
             <header class="bg-white shadow-sm sticky top-0 z-10">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                    <!-- LOGO -->
                     <div class="flex items-center gap-3">
                         <div class="bg-blue-600 p-2 rounded-lg">
-                            <i data-lucide="ClipboardList" class="text-white"></i>
+                            <i data-lucide="HeartPulse" class="text-white h-6 w-6"></i>
                         </div>
-                        <h1 class="text-2xl font-bold text-blue-600">Painel de Atendimento</h1>
+                        <div class="flex flex-col">
+                            <h1 class="text-xl font-bold text-blue-600 leading-tight">UBS</h1>
+                            <p class="text-md font-medium text-slate-600 leading-tight">Atendimentos</p>
+                        </div>
                     </div>
+                    <h2 class="hidden sm:block text-xl font-semibold text-slate-700">Painel de Atendimento</h2>
                     <button data-action="go-home" class="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition-all flex items-center gap-2">
                         <i data-lucide="LogOut" class="w-4 h-4"></i>
                         Sair
@@ -393,13 +401,9 @@ document.addEventListener('DOMContentLoaded', () => {
         state.currentTriage.score += value;
         state.currentTriage.answers[nextQuestionId] = target.querySelector('span').textContent;
 
-        // CORREÇÃO PRINCIPAL AQUI:
-        // Se a próxima etapa for 'final', chama a tela de resultado.
-        // Caso contrário, renderiza a próxima pergunta.
         if (nextQuestionId === 'final') {
             calculateAndShowResult();
         } else {
-            // Limpa o conteúdo e renderiza a próxima pergunta
             appContainer.innerHTML = renderTriageScreen(nextQuestionId);
             attachEventListeners();
             lucide.createIcons();
