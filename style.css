@@ -1,0 +1,29 @@
+/* Usamos a fonte Inter como padrão para todo o corpo do documento */
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animação de fade-in para transições de tela mais suaves */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo para o 'esqueleto' de carregamento do painel */
+.skeleton-card {
+    background-color: #e2e8f0;
+    border-radius: 0.5rem;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    50% {
+        opacity: .5;
+    }
+}
