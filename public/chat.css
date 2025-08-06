@@ -2,7 +2,7 @@
 
 /* Variáveis de cor para fácil customização */
 :root {
-    --chat-primary: #2563eb; /* Azul, igual ao do projeto principal */
+    --chat-primary: #005A8D; /* Azul, igual ao do projeto principal */
     --chat-light-bg: #f1f5f9; /* Fundo cinza claro */
     --chat-bubble-size: 60px;
     --chat-bubble-offset: 20px;
@@ -16,35 +16,19 @@
     z-index: 1000;
 }
 
-/* Balão flutuante para abrir o chat */
+/* Balão flutuante para abrir o chat (MODIFICADO) */
 .chat-bubble {
-    width: var(--chat-bubble-size);
-    height: var(--chat-bubble-size);
-    background-color: var(--chat-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s;
-}
-
-.chat-bubble:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-}
-
-.chat-bubble svg {
-    width: 32px;
-    height: 32px;
-    color: white;
+    display: none !important; /* Esconde o balão de chat permanentemente */
 }
 
 /* Janela principal do chat */
 .chat-window {
+    position: fixed; /* Garante que a janela fique sobre todo o conteúdo */
+    bottom: 20px;
+    right: 20px;
     width: 370px;
     height: 500px;
+    max-height: calc(100vh - 40px);
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
@@ -79,6 +63,7 @@
 .chat-header h3 {
     font-size: 1.1rem;
     font-weight: 600;
+    margin: 0;
 }
 
 .chat-header button {
@@ -88,6 +73,7 @@
     cursor: pointer;
     opacity: 0.8;
     transition: opacity 0.2s;
+    padding: 0;
 }
 .chat-header button:hover {
     opacity: 1;
@@ -108,20 +94,21 @@
     margin-bottom: 12px;
     line-height: 1.4;
     word-wrap: break-word;
+    clear: both;
 }
 
 .ai-message {
     background-color: #e5e7eb; /* Cinza */
     color: #1f2937;
     border-bottom-left-radius: 4px;
-    align-self: flex-start;
+    float: left;
 }
 
 .user-message {
     background-color: var(--chat-primary);
     color: white;
     border-bottom-right-radius: 4px;
-    margin-left: auto; /* Alinha à direita */
+    float: right;
 }
 
 /* Formulário de input */
@@ -130,6 +117,7 @@
     padding: 12px;
     border-top: 1px solid #e2e8f0;
     flex-shrink: 0;
+    background-color: white;
 }
 
 .chat-input-form input {
@@ -164,12 +152,12 @@
     display: flex;
     align-items: center;
     padding: 10px 0;
+    float: left;
 }
 
 .typing-indicator span {
     height: 8px;
     width: 8px;
-    float: left;
     margin: 0 2px;
     background-color: #9ca3af;
     border-radius: 50%;
