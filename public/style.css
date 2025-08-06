@@ -1,241 +1,235 @@
 /* style.css */
 
-/* 1. DEFINIÇÕES GLOBAIS E PALETA DE CORES (Estilo Einstein) */
+/* --- Variáveis Globais de Design --- */
 :root {
-    --color-primary: #00549A; /* Azul principal do Einstein */
-    --color-primary-dark: #002D5B; /* Azul escuro para cards de destaque */
-    --color-primary-light: #E6F0F7; /* Azul bem claro para fundos e bordas */
-    --color-accent: #009DAF; /* Verde-água para detalhes gráficos */
-    --color-background: #FFFFFF;
-    --color-text: #333333;
-    --color-text-light: #5f6368;
-    --color-border: #DCE3E8;
-    --font-sans: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --primary-blue: #005A8D;
+    --primary-blue-dark: #004a75;
+    --accent-cyan: #00A99D;
+    --background-light: #f8f9fa;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --white: #ffffff;
+    --border-color: #e9ecef;
+    --shadow-light: rgba(0, 90, 141, 0.08);
+    --shadow-medium: rgba(0, 90, 141, 0.12);
+    --danger-red: #dc3545;
+    --warning-yellow: #ffc107;
+    --success-green: #198754;
 }
 
+/* --- Estilo Base e Tipografia --- */
 body {
-    font-family: var(--font-sans);
-    background-color: var(--color-background);
-    color: var(--color-text);
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 2. ANIMAÇÕES */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in { animation: fadeIn 0.5s ease-out forwards; }
-.slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-
-/* 3. LAYOUT PRINCIPAL (Estilo Einstein) */
-
-.main-header {
-    background-color: white;
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-.main-header .logo {
-    font-weight: 700;
-    color: var(--color-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-.main-header .nav-actions .btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.health-portal {
-    max-width: 1200px;
-    margin: 4rem auto;
-    padding: 0 2rem;
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    lg:grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: center;
-}
-@media (min-width: 1024px) {
-    .health-portal { grid-template-columns: 1fr 1fr; }
-}
-
-.portal-actions h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 2rem;
-    color: var(--color-primary-dark);
-}
-
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.action-card {
-    background-color: white;
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
-    padding: 1.5rem;
+#app {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    color: var(--color-primary);
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-}
-.action-card:hover {
-    border-color: var(--color-primary);
-    box-shadow: 0 4px 20px rgba(0, 84, 154, 0.1);
-    transform: translateY(-4px);
-}
-.action-card i {
-    background-color: var(--color-primary-light);
-    padding: 0.75rem;
-    border-radius: 0.75rem;
+    min-height: 100vh;
 }
 
-.feature-card {
-    position: relative;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-.feature-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.feature-card-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--color-primary-dark);
-    color: white;
-    padding: 2rem;
-}
-.feature-card-content h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-.feature-card-content .btn {
-    background-color: transparent;
-    border: 2px solid var(--color-accent);
-    color: white;
-    padding: 0.5rem 1rem;
-}
-.feature-card-accent {
-    position: absolute;
-    bottom: -5%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background-color: var(--color-accent);
-    transform: skew(-20deg);
-    z-index: -1;
-    opacity: 0.8;
-}
-
-/* 4. COMPONENTES GERAIS (Botões, etc.) */
+/* --- Componentes Reutilizáveis --- */
 .btn {
+    background-image: linear-gradient(to right, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    font-weight: 600;
-    padding: 0.875rem 1.5rem;
-    border-radius: 9999px; /* Botões totalmente arredondados */
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-.btn-primary {
-    background-color: var(--color-primary);
-    color: white;
-}
-.btn-primary:hover {
-    background-color: var(--color-primary-dark);
 }
 
-/* 5. INTERFACE DE CHAT */
-.chat-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    background: white;
-    border: 1px solid var(--color-border);
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Cabeçalho Principal --- */
+.main-header {
+    background-color: var(--white);
+    padding: 1rem 2.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* --- Layout Padrão para Telas Internas --- */
+.page-content {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 150px); /* Ajustar altura */
+    align-items: center;
+    padding: 3rem 1.5rem;
 }
-.chat-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-    font-weight: 600;
-}
-.chat-messages {
+
+/* --- Tela Principal (Health Portal) --- */
+.health-portal {
     flex-grow: 1;
-    padding: 1.5rem;
-    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    padding: 4rem 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.portal-actions { flex: 1.1; }
+.portal-actions h2 { font-size: 2.8rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 2.5rem; line-height: 1.25; }
+.actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+.action-card {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px var(--shadow-light);
 }
-.chat-message {
-    padding: 0.75rem 1.25rem;
-    border-radius: 1.25rem;
-    max-width: 75%;
-    line-height: 1.5;
+.action-card:hover { transform: translateY(-6px) scale(1.02); border-color: var(--primary-blue); box-shadow: 0 10px 25px var(--shadow-medium); }
+.action-card i { color: var(--primary-blue); width: 36px; height: 36px; stroke-width: 2; }
+.action-card span { font-size: 1.15rem; font-weight: 600; line-height: 1.4; }
+
+/* --- Card de Destaque (Direita) --- */
+.feature-card { flex: 1; position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-height: 480px; }
+.feature-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 1; transition: transform 0.4s ease; }
+.feature-card:hover img { transform: scale(1.05); }
+.feature-card-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 2.5rem; z-index: 3; color: var(--white); }
+.feature-card-content h3 { font-size: 1.8rem; font-weight: 700; }
+.feature-card-accent { position: absolute; bottom: -15%; right: -20%; width: 100%; height: 60%; background: linear-gradient(45deg, var(--accent-cyan), var(--primary-blue)); transform: rotate(-15deg); z-index: 2; opacity: 0.95; }
+
+/* --- Estilos para Telas de Triagem e Dashboard --- */
+.content-card {
+    background-color: var(--white);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px var(--shadow-light);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
 }
-.ai-message {
-    background-color: var(--color-primary-light);
-    color: var(--color-text);
-    border-bottom-left-radius: 0.25rem;
-    align-self: flex-start;
+.content-card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
 }
-.user-message {
-    background-color: var(--color-primary);
-    color: white;
-    border-bottom-right-radius: 0.25rem;
-    align-self: flex-end;
-}
-.chat-input-area {
-    display: flex;
-    padding: 1rem;
-    border-top: 1px solid var(--color-border);
-    gap: 1rem;
-}
-.chat-input-area input {
-    flex-grow: 1;
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-    padding: 0.75rem 1.25rem;
+
+/* Input de Nome */
+.input-field {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
     font-size: 1rem;
+    transition: all 0.3s ease;
 }
-.chat-input-area input:focus {
+.input-field:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(0, 90, 141, 0.15);
     outline: none;
-    border-color: var(--color-primary);
 }
+.content-card .btn {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Opções da Triagem */
+.triage-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.triage-option {
+    width: 100%;
+    text-align: left;
+    background-color: var(--white);
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.triage-option:hover {
+    border-color: var(--primary-blue);
+    background-color: #f5faff;
+}
+.triage-option i { color: var(--primary-blue); }
+.triage-option span { font-weight: 600; font-size: 1.05rem; }
+
+/* Tela de Resultado */
+.result-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.result-icon i { width: 40px; height: 40px; }
+.result-priority { font-size: 2.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+.recommendation-box { background-color: var(--background-light); padding: 1.5rem; border-radius: 12px; text-align: left; }
+
+/* Cores de Prioridade */
+.priority-high { color: var(--danger-red); }
+.bg-high { background-color: #fdeded; }
+.priority-medium { color: var(--warning-yellow); }
+.bg-medium { background-color: #fff8e1; }
+.priority-low { color: var(--success-green); }
+.bg-low { background-color: #e8f5e9; }
+
+/* Animações */
+.fade-in { animation: fadeIn 0.7s ease-out forwards; }
+.slide-up { animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .health-portal { flex-direction: column; gap: 3rem; }
+    .portal-actions h2 { font-size: 2.2rem; text-align: center; }
+    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+    .main-header { padding: 1rem 1.5rem; }
+    .portal-actions h2 { font-size: 1.8rem; }
+    .actions-grid { grid-template-columns: 1fr; }
+    .content-card { padding: 1.5rem; }
+    .portal-actions h2 { font-size: 1.8rem; }
+}
+
