@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UBS Atendimentos</title>
+    <title>UBS Atendimentos | Cuidando da sua Saúde</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+    <!-- Pré-conexão para otimizar o carregamento das fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fonte Principal (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Ícones (Lucide) - Carregado de forma assíncrona para não bloquear a renderização -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 
+    <!-- Nossas Folhas de Estilo -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="chat.css">
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
+    <!-- Ponto de entrada da aplicação. O conteúdo será injetado aqui. -->
+    <div id="app"></div>
 
-    <div id="app" class="min-h-screen flex flex-col"></div>
-
+    <!-- Nossos Scripts - Carregados no final para performance -->
     <script src="script.js"></script>
     <script src="chat.js" defer></script>
-    
 </body>
 </html>
