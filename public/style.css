@@ -35,27 +35,47 @@ body {
     min-height: 100vh;
 }
 
-/* --- Componentes Reutilizáveis --- */
+/* --- Componentes Reutilizáveis (BOTÃO ATUALIZADO) --- */
 .btn {
-    background-image: linear-gradient(to right, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    background-image: linear-gradient(45deg, var(--primary-blue) 0%, var(--accent-cyan) 100%);
     color: var(--white);
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 50px; /* Deixa o botão em formato de "pílula" */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 90, 141, 0.11), 0 1px 3px rgba(0,0,0,0.08);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.6rem; /* Aumenta o espaço para o ícone */
+    background-size: 200% auto;
+    text-decoration: none; /* Remove sublinhado caso seja usado em tag <a> */
 }
 
 .btn:hover {
+    background-position: right center; /* Anima o gradiente */
+    box-shadow: 0 7px 14px rgba(0, 90, 141, 0.1), 0 3px 6px rgba(0,0,0,0.08);
     transform: translateY(-2px);
-    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
 }
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 90, 141, 0.2);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+/* Classe para botões maiores */
+.btn-large {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+}
+
 
 /* --- Cabeçalho Principal --- */
 .main-header {
@@ -80,12 +100,13 @@ body {
     font-weight: 700;
 }
 
-/* --- Layout Padrão para Telas Internas --- */
+/* --- Layout Padrão para Telas Internas (MODIFICADO) --- */
 .page-content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Centraliza o conteúdo verticalmente */
     padding: 3rem 1.5rem;
     width: 100%;
     box-sizing: border-box;

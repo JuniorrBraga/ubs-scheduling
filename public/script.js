@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <header class="main-header fade-in">
                 <div class="logo"><i data-lucide="HeartPulse"></i><span>UBS Atendimentos</span></div>
-                <nav><button data-action="view-dashboard" class="btn">Área da Equipe</button></nav>
+                <nav><button data-action="view-dashboard" class="btn"><i data-lucide="shield"></i><span>Área da Equipe</span></button></nav>
             </header>
             <main class="health-portal">
                 <div class="portal-actions slide-up">
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${!state.currentTriage.patientName ? `
                         <h2>Antes de começar, qual o seu nome?</h2>
                         <input type="text" id="patient-name-input" placeholder="Digite seu nome completo" class="input-field" />
-                        <button data-action="submit-name" class="btn">Continuar</button>
+                        <button data-action="submit-name" class="btn btn-large">Continuar</button>
                     ` : `
                         <h2>${question.text}</h2>
                         <div class="triage-options">${optionsHtml}</div>
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Recomendação:</h3>
                         <p class="text-light">${recommendations[priority]}</p>
                     </div>
-                    <button data-action="go-home" class="btn" style="margin-top: 2rem; width: 100%;">Entendido</button>
+                    <button data-action="go-home" class="btn btn-large" style="margin-top: 2rem;">Entendido</button>
                 </div>
             </main>
         `;
