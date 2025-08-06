@@ -10,9 +10,13 @@ const { ubsInfo } = require('./knowledge_base.js'); // Importa o nosso "banco de
 const app = express();
 const port = 3000;
 
-// Configurações do Servidor
+// --- Configurações do Servidor ---
 app.use(cors()); // Permite que o frontend (em outra porta) acesse este servidor
 app.use(express.json()); // Permite que o servidor entenda JSON nas requisições
+
+// Informa ao Express para servir os arquivos estáticos da pasta 'public'
+// É assim que o navegador encontrará seu index.html, script.js, etc.
+app.use(express.static('public'));
 
 // Inicializa o cliente do Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
