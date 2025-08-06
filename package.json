@@ -1,0 +1,26 @@
+{
+  "name": "ubs-scheduling",
+  "version": "1.0.0",
+  "description": "Um protótipo funcional de um sistema de agendamento inteligente para *Unidades Básicas de Saúde (UBS). Nosso objetivo principal é otimizar o fluxo de atendimento, **reduzindo o tempo de espera* e *priorizando pacientes com base na urgência clínica*, em vez da simples ordem de chegada.",
+  "main": "chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuniorrBraga/ubs-scheduling.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JuniorrBraga/ubs-scheduling/issues"
+  },
+  "homepage": "https://github.com/JuniorrBraga/ubs-scheduling#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  }
+}

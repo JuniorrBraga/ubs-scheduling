@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
                 <div class="chat-messages" id="chat-messages">
-                    </div>
+                </div>
                 <div class="typing-indicator" id="typing-indicator" style="display: none;">
                     <span></span><span></span><span></span>
                 </div>
                 <form class="chat-input-form" id="chat-form">
                     <input type="text" id="chat-input" placeholder="Digite sua dúvida..." autocomplete="off">
                     <button type="submit" title="Enviar">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </form>
             </div>
@@ -97,31 +97,37 @@ document.addEventListener('DOMContentLoaded', () => {
         typingIndicator.style.display = 'none';
     }
 
-    // --- SIMULAÇÃO DE RESPOSTA DA IA (GEMINI) ---
-    // No futuro, você substituiria esta função por uma chamada de API real.
-    function getGeminiResponse(question) {
-        const lowerCaseQuestion = question.toLowerCase();
-        let response = "Desculpe, não entendi sua pergunta. Você pode tentar reformulá-la? Lembre-se que sou uma IA para tirar dúvidas gerais e não substituo uma consulta médica.";
+    // --- COMUNICAÇÃO COM A IA (GEMINI) VIA BACKEND ---
+    // Esta é a nova função que se conecta ao seu servidor Node.js
+    async function getGeminiResponse(question) {
+        const apiUrl = 'http://localhost:3000/chat'; // URL do nosso backend
 
-        // Regras simples baseadas em palavras-chave
-        if (lowerCaseQuestion.includes('oi') || lowerCaseQuestion.includes('olá')) {
-            response = "Olá! Como posso te ajudar hoje?";
-        } else if (lowerCaseQuestion.includes('horário') || lowerCaseQuestion.includes('funciona')) {
-            response = "Nossa UBS funciona de segunda a sexta, das 7h às 19h. Para informações específicas sobre feriados, por favor, consulte o calendário oficial da prefeitura.";
-        } else if (lowerCaseQuestion.includes('febre')) {
-            response = "Febre é o aumento da temperatura corporal. Geralmente, considera-se febre acima de 37.8°C. Se a febre for alta (acima de 38.5°C) ou persistente, é recomendado procurar atendimento médico. Este chat não substitui a triagem oficial.";
-        } else if (lowerCaseQuestion.includes('agendar') || lowerCaseQuestion.includes('consulta')) {
-            response = "Para agendar uma consulta, você pode usar o sistema de triagem clicando em 'Sou Paciente' na tela inicial ou se dirigir à recepção. Agendamentos de retorno são feitos diretamente com a equipe após a consulta.";
-        } else if (lowerCaseQuestion.includes('receita')) {
-            response = "Para renovar uma receita, por favor, use a opção 'Renovação de receita' na tela de triagem. É importante ter em mãos a receita anterior ou o nome do medicamento.";
-        } else if (lowerCaseQuestion.includes('obrigado')) {
-            response = "De nada! Se precisar de mais alguma coisa, é só perguntar. 😊";
-        }
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: question }), // Envia a pergunta no corpo da requisição
+            });
 
-        // Simula o tempo de resposta da API (1.5 segundos)
-        setTimeout(() => {
+            if (!response.ok) {
+                // Se o servidor retornar um erro (ex: 500), lança uma exceção
+                throw new Error(`Erro do servidor: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Adiciona a resposta da IA na tela
             hideTypingIndicator();
-            addMessage(response, 'ai');
-        }, 1500);
+            addMessage(data.answer, 'ai');
+
+        } catch (error) {
+            console.error('Falha ao obter resposta da IA:', error);
+            const errorMessage = "Desculpe, meu cérebro digital parece estar offline no momento. 🧠🔌 Por favor, tente novamente mais tarde.";
+            
+            hideTypingIndicator();
+            addMessage(errorMessage, 'ai');
+        }
     }
 });
