@@ -2,14 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const state = {
-        currentPage: 'home', // 'home', 'triage', 'result', 'dashboard'
+        currentPage: 'home', // 'home', 'triage', 'result', 'dashboard', 'callPanel'
         patientQueue: [
             { id: 1, name: 'Carlos Pereira', priority: 'Média', priorityLevel: 2, arrivalTime: new Date(Date.now() - 30 * 60000) },
             { id: 2, name: 'Ana Souza', priority: 'Baixa', priorityLevel: 1, arrivalTime: new Date(Date.now() - 45 * 60000) },
             { id: 3, name: 'Juliana Costa', priority: 'Alta', priorityLevel: 3, arrivalTime: new Date(Date.now() - 10 * 60000) },
         ],
         currentTriage: { answers: {}, score: 0, patientName: '' },
-        currentUser: null
+        currentlyCalling: null, // Armazena o paciente sendo chamado
+        activeInterval: null // Para controlar o relógio do painel
     };
 
     const appContainer = document.getElementById('app');
@@ -25,6 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DE RENDERIZAÇÃO ---
     function render() {
+        // Limpa qualquer intervalo ativo (como o relógio) antes de renderizar uma nova página
+        if (state.activeInterval) {
+            clearInterval(state.activeInterval);
+            state.activeInterval = null;
+        }
+
         appContainer.innerHTML = '';
         let content = '';
         switch (state.currentPage) {
@@ -37,19 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dashboardContent = document.getElementById('dashboard-content');
                     if(dashboardContent) {
                         dashboardContent.innerHTML = renderDashboardContent();
-                        attachDashboardListeners();
+                        lucide.createIcons();
                     }
                 }, 500);
+                break;
+            case 'callPanel':
+                content = renderCallPanelScreen();
+                // Inicia o relógio para a tela do painel
+                state.activeInterval = setInterval(updateClock, 1000);
                 break;
             default: content = renderHomeScreen();
         }
         appContainer.innerHTML = content;
-        attachEventListeners();
         lucide.createIcons();
     }
 
     // --- GERADORES DE CONTEÚDO HTML (VIEWS) ---
     function renderHomeScreen() {
+        const nextPatients = [...state.patientQueue].sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime).slice(0, 2);
+        
         return `
             <header class="main-header fade-in">
                 <div class="logo"><i data-lucide="HeartPulse"></i><span>UBS Atendimentos</span></div>
@@ -69,19 +82,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </div>
-                <div class="feature-card fade-in" style="animation-delay: 0.2s;">
-                    <img src="https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Médico sorrindo">
-                    <div class="feature-card-accent"></div>
+                <div class="feature-card panel-preview-card fade-in" style="animation-delay: 0.2s;">
+                    <div class="panel-preview">
+                        <div class="preview-header">
+                            <h4>Painel de Atendimento</h4>
+                            <span class="live-dot"></span>
+                        </div>
+                        <div class="preview-calling">
+                            <p>Chamando Agora</p>
+                            <span>${state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...'}</span>
+                        </div>
+                        <div class="preview-next">
+                            <p>Próximos Pacientes</p>
+                            <ul>
+                                ${nextPatients.map(p => `<li>${p.name}</li>`).join('')}
+                                ${nextPatients.length === 0 ? '<li>Nenhum paciente na fila</li>' : ''}
+                            </ul>
+                        </div>
+                    </div>
                     <div class="feature-card-content">
-                        <h3>Atendimento Humanizado</h3>
-                        <p style="color: #e0e0e0; margin: 0.5rem 0 1rem 0;">Nossa prioridade é o seu bem-estar.</p>
-                        <button class="btn">Saiba mais</button>
+                        <h3>Acompanhe a Fila em Tempo Real</h3>
+                        <button data-action="view-call-panel" class="btn">Veja o Painel</button>
                     </div>
                 </div>
             </main>
         `;
     }
-
+    
     function renderHeader(title) {
         return `<header class="main-header fade-in"><div class="logo"><i data-lucide="HeartPulse"></i><span>${title}</span></div><nav><button data-action="go-home" class="btn">Voltar ao Início</button></nav></header>`;
     }
@@ -127,7 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
         const priorityClass = priorityClassMap[priority];
         
-        state.patientQueue.push({ id: Date.now(), name: state.currentTriage.patientName, priority, priorityLevel, arrivalTime: new Date() });
+        if (!state.patientQueue.some(p => p.id === state.currentTriage.id)) {
+            state.patientQueue.push({ id: state.currentTriage.id, name: state.currentTriage.patientName, priority, priorityLevel, arrivalTime: new Date() });
+        }
 
         return `
             ${renderHeader('Resultado da Triagem')}
@@ -152,8 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ${renderHeader('Painel de Atendimento')}
             <main id="dashboard-content" class="page-content">
                 <div class="dashboard-grid">
-                    <div class="patient-card" style="background-color: #e9ecef; border: none; animation: pulse 1.5s infinite ease-in-out;"></div>
-                    <div class="patient-card" style="background-color: #e9ecef; border: none; animation: pulse 1.5s infinite ease-in-out .2s;"></div>
+                    <div class="patient-card skeleton"></div>
+                    <div class="patient-card skeleton"></div>
+                    <div class="patient-card skeleton"></div>
                 </div>
             </main>
         `;
@@ -164,11 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sortedQueue.length === 0) {
             return `<div class="content-card fade-in"><i data-lucide="CheckSquare" class="result-icon bg-low priority-low"></i><h2>Nenhum paciente na fila.</h2></div>`;
         }
-        return sortedQueue.map((p, i) => {
+        const patientCards = sortedQueue.map((p, i) => {
             const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-            const priorityClass = p.priority.toLowerCase();
+            const priorityClass = p.priority === 'Média' ? 'media' : p.priority.toLowerCase();
             return `
-                <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 100}ms">
+                <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
                     <div class="patient-info">
                         <div class="name">${p.name}</div>
                         <div class="details"><i data-lucide="Clock" style="width:16px;"></i>Aguardando há ${timeWaiting} min</div>
@@ -180,40 +210,126 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }).join('');
+        return `<div class="dashboard-grid">${patientCards}</div>`;
     }
 
-    // --- MANIPULADORES DE EVENTOS ---
-    function attachEventListeners() {
-        document.body.addEventListener('click', (event) => {
-            const target = event.target.closest('[data-action]');
-            if (!target) return;
-            const action = target.dataset.action;
-            const actions = {
-                'start-chat': () => document.getElementById('chat-bubble')?.click(),
-                'start-triage': () => { state.currentPage = 'triage'; state.currentTriage = { answers: {}, score: 0, patientName: '' }; render(); },
-                'view-dashboard': () => { state.currentPage = 'dashboard'; render(); },
-                'go-home': () => { state.currentPage = 'home'; render(); },
-                'submit-name': () => {
-                    const input = document.getElementById('patient-name-input');
-                    if (input && input.value.trim()) { state.currentTriage.patientName = input.value.trim(); render(); } 
-                    else { alert('Por favor, digite seu nome.'); }
-                },
-                'answer-triage': () => {
-                    state.currentTriage.score += parseInt(target.dataset.value, 10);
-                    if (target.dataset.next === 'final') { state.currentPage = 'result'; render(); } 
-                    else { appContainer.innerHTML = renderTriageScreen(target.dataset.next); attachEventListeners(); lucide.createIcons(); }
-                },
-                'call-patient': () => {
-                    state.patientQueue = state.patientQueue.filter(p => p.id !== parseInt(target.dataset.id, 10));
-                    document.getElementById('dashboard-content').innerHTML = renderDashboardContent();
-                    attachDashboardListeners();
-                },
-            };
-            if (actions[action]) { event.preventDefault(); actions[action](); }
-        });
+    function renderCallPanelScreen() {
+        const sortedQueue = [...state.patientQueue].sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime);
+        const nextPatients = sortedQueue.filter(p => !state.currentlyCalling || p.id !== state.currentlyCalling.id).slice(0, 3);
+        const callingPatient = state.currentlyCalling;
+        const now = new Date();
+
+        return `
+            <div class="call-panel-page">
+                <header class="panel-header">
+                    <div>
+                        <h1>Painel de Atendimento</h1>
+                        <p>UBS Atendimentos</p>
+                    </div>
+                    <div class="clock">
+                        <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
+                        <span id="clock-date">${now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                    </div>
+                </header>
+                <main class="panel-main">
+                    <div class="calling-now ${callingPatient ? 'active' : ''}">
+                        <p>Chamando Agora</p>
+                        <span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span>
+                    </div>
+                    <div class="next-patients">
+                        <h2>Próximos Pacientes</h2>
+                        <ul>
+                            ${nextPatients.map(p => {
+                                const priorityClass = p.priority === 'Média' ? 'media' : p.priority.toLowerCase();
+                                return `<li><span>${p.name}</span><span class="priority-tag tag-${priorityClass}">${p.priority}</span></li>`
+                            }).join('')}
+                            ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
+                        </ul>
+                    </div>
+                </main>
+                <button data-action="go-home" class="close-panel-btn"><i data-lucide="X"></i></button>
+            </div>
+        `;
     }
 
-    function attachDashboardListeners() { lucide.createIcons(); }
+    function updateClock() {
+        const timeEl = document.getElementById('clock-time');
+        if (timeEl) {
+            timeEl.textContent = new Date().toLocaleTimeString('pt-BR');
+        }
+    }
+
+    // --- MANIPULADOR DE EVENTOS ÚNICO ---
+    document.body.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-action]');
+        if (!target) return;
+
+        const action = target.dataset.action;
+        event.preventDefault();
+
+        if (action === 'start-triage') {
+            state.currentPage = 'triage';
+            state.currentTriage = { id: Date.now(), answers: {}, score: 0, patientName: '' };
+            render();
+        }
+        if (action === 'view-dashboard') {
+            state.currentPage = 'dashboard';
+            render();
+        }
+        if (action === 'go-home') {
+            state.currentPage = 'home';
+            render();
+        }
+        if (action === 'start-chat') {
+            document.getElementById('chat-bubble')?.click();
+        }
+        if (action === 'view-call-panel') {
+            state.currentPage = 'callPanel';
+            render();
+        }
+        if (action === 'submit-name') {
+            const input = document.getElementById('patient-name-input');
+            const existingError = document.querySelector('.error-message');
+            if (existingError) existingError.remove();
+            input.classList.remove('input-error');
+
+            if (input && input.value.trim()) { 
+                state.currentTriage.patientName = input.value.trim(); 
+                render(); 
+            } else {
+                const errorElement = document.createElement('p');
+                errorElement.className = 'error-message';
+                errorElement.textContent = 'Por favor, preencha seu nome para continuar.';
+                input.insertAdjacentElement('afterend', errorElement);
+                input.classList.add('input-error');
+            }
+        }
+        if (action === 'answer-triage') {
+            state.currentTriage.score += parseInt(target.dataset.value, 10);
+            if (target.dataset.next === 'final') {
+                state.currentPage = 'result';
+                render();
+            } else {
+                appContainer.innerHTML = renderTriageScreen(target.dataset.next);
+                lucide.createIcons();
+            }
+        }
+        if (action === 'call-patient') {
+            const patientId = parseInt(target.dataset.id, 10);
+            state.currentlyCalling = state.patientQueue.find(p => p.id === patientId);
+            state.patientQueue = state.patientQueue.filter(p => p.id !== patientId);
+            
+            const dashboardContent = document.getElementById('dashboard-content');
+            if (dashboardContent) {
+                dashboardContent.innerHTML = renderDashboardContent();
+                lucide.createIcons();
+            }
+            // Simula o fim do atendimento
+            setTimeout(() => {
+                state.currentlyCalling = null;
+            }, 15000); // Paciente fica "em chamado" por 15s
+        }
+    });
 
     // --- INICIALIZAÇÃO ---
     render();
