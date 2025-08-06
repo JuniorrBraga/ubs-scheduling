@@ -102,7 +102,14 @@ body {
 
 .portal-actions { flex: 1.1; }
 .portal-actions h2 { font-size: 2.8rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 2.5rem; line-height: 1.25; }
-.actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+/* --- Grid de Ações (MODIFICADO) --- */
+.actions-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; /* Apenas uma coluna */
+    gap: 1.5rem; 
+    max-width: 380px; /* Limita a largura para não ficar muito esticado */
+}
 
 .action-card {
     background-color: var(--white);
@@ -110,15 +117,14 @@ body {
     border-radius: 16px;
     padding: 1.75rem;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: center; /* Centraliza itens horizontalmente */
+    gap: 1.5rem; /* Aumenta o espaço entre ícone e texto */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 5px 15px var(--shadow-light);
 }
 .action-card:hover { transform: translateY(-6px) scale(1.02); border-color: var(--primary-blue); box-shadow: 0 10px 25px var(--shadow-medium); }
-.action-card i { color: var(--primary-blue); width: 36px; height: 36px; stroke-width: 2; }
+.action-card i { color: var(--primary-blue); width: 36px; height: 36px; stroke-width: 2; flex-shrink: 0; }
 .action-card span { font-size: 1.15rem; font-weight: 600; line-height: 1.4; }
 
 /* --- Card de Destaque (Direita) --- */
@@ -154,6 +160,7 @@ body {
     padding: 0.8rem 1rem;
     font-size: 1rem;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 .input-field:focus {
     border-color: var(--primary-blue);
@@ -213,23 +220,54 @@ body {
 .priority-low { color: var(--success-green); }
 .bg-low { background-color: #e8f5e9; }
 
+/* --- Estilos para o Dashboard --- */
+.dashboard-grid {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    gap: 1rem;
+}
+.patient-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    border-left: 5px solid;
+    padding: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.patient-card.priority-alta { border-color: var(--danger-red); }
+.patient-card.priority-média { border-color: var(--warning-yellow); }
+.patient-card.priority-baixa { border-color: var(--success-green); }
+
+.patient-info { flex-grow: 1; }
+.patient-info .name { font-size: 1.2rem; font-weight: 700; }
+.patient-info .details { color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.patient-actions { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+.priority-tag { font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; }
+.tag-alta { background-color: #fdeded; color: var(--danger-red); }
+.tag-média { background-color: #fff8e1; color: #997400; }
+.tag-baixa { background-color: #e8f5e9; color: var(--success-green); }
+
 /* Animações */
 .fade-in { animation: fadeIn 0.7s ease-out forwards; }
 .slide-up { animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 50% { opacity: .6; } }
 
 /* Responsividade */
 @media (max-width: 992px) {
     .health-portal { flex-direction: column; gap: 3rem; }
     .portal-actions h2 { font-size: 2.2rem; text-align: center; }
-    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+    .actions-grid { grid-template-columns: 1fr; max-width: 100%; }
 }
 @media (max-width: 576px) {
     .main-header { padding: 1rem 1.5rem; }
     .portal-actions h2 { font-size: 1.8rem; }
-    .actions-grid { grid-template-columns: 1fr; }
     .content-card { padding: 1.5rem; }
-    .portal-actions h2 { font-size: 1.8rem; }
+    .patient-card { flex-direction: column; align-items: stretch; }
 }
-

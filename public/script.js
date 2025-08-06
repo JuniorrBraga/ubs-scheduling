@@ -59,10 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="portal-actions slide-up">
                     <h2>Saiba tudo que a UBS oferece para cuidar da sua saúde</h2>
                     <div class="actions-grid">
-                        <div data-action="start-triage" class="action-card"><i data-lucide="ClipboardList"></i><span>Pronto Atendimento<br>(Iniciar Triagem)</span></div>
-                        <div data-action="start-chat" class="action-card"><i data-lucide="MessageSquare"></i><span>Falar com Assistente Virtual</span></div>
-                        <div data-action="view-results" class="action-card"><i data-lucide="FileText"></i><span>Resultados de Exames</span></div>
-                        <div data-action="schedule-exam" class="action-card"><i data-lucide="Calendar"></i><span>Agende seus Exames</span></div>
+                        <div data-action="start-triage" class="action-card">
+                            <i data-lucide="ClipboardList"></i>
+                            <span>Pronto Atendimento<br>(Iniciar Triagem)</span>
+                        </div>
+                        <div data-action="start-chat" class="action-card">
+                            <i data-lucide="MessageSquare"></i>
+                            <span>Falar com Assistente Virtual</span>
+                        </div>
                     </div>
                 </div>
                 <div class="feature-card fade-in" style="animation-delay: 0.2s;">
@@ -204,8 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('dashboard-content').innerHTML = renderDashboardContent();
                     attachDashboardListeners();
                 },
-                'view-results': () => alert('Funcionalidade a ser implementada.'),
-                'schedule-exam': () => alert('Funcionalidade a ser implementada.'),
             };
             if (actions[action]) { event.preventDefault(); actions[action](); }
         });
