@@ -1,30 +1,241 @@
-/* Usamos a fonte Inter como padrão para todo o corpo do documento */
+/* style.css */
+
+/* 1. DEFINIÇÕES GLOBAIS E PALETA DE CORES (Estilo Einstein) */
+:root {
+    --color-primary: #00549A; /* Azul principal do Einstein */
+    --color-primary-dark: #002D5B; /* Azul escuro para cards de destaque */
+    --color-primary-light: #E6F0F7; /* Azul bem claro para fundos e bordas */
+    --color-accent: #009DAF; /* Verde-água para detalhes gráficos */
+    --color-background: #FFFFFF;
+    --color-text: #333333;
+    --color-text-light: #5f6368;
+    --color-border: #DCE3E8;
+    --font-sans: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animação de fade-in para transições de tela mais suaves */
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
+/* 2. ANIMAÇÕES */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Estilo para o 'esqueleto' de carregamento do painel */
-.skeleton-card {
-    background-color: #e2e8f0;
-    border-radius: 0.5rem;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+
+/* 3. LAYOUT PRINCIPAL (Estilo Einstein) */
+
+.main-header {
+    background-color: white;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.main-header .logo {
+    font-weight: 700;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.main-header .nav-actions .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-/* A animação 'pulse' do Tailwind pode ser usada, mas esta é uma alternativa customizada */
-@keyframes pulse {
-    50% {
-        opacity: .5;
-    }
+.health-portal {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    lg:grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+@media (min-width: 1024px) {
+    .health-portal { grid-template-columns: 1fr 1fr; }
+}
+
+.portal-actions h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    color: var(--color-primary-dark);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.action-card {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.action-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 20px rgba(0, 84, 154, 0.1);
+    transform: translateY(-4px);
+}
+.action-card i {
+    background-color: var(--color-primary-light);
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+}
+
+.feature-card {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+.feature-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.feature-card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-primary-dark);
+    color: white;
+    padding: 2rem;
+}
+.feature-card-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.feature-card-content .btn {
+    background-color: transparent;
+    border: 2px solid var(--color-accent);
+    color: white;
+    padding: 0.5rem 1rem;
+}
+.feature-card-accent {
+    position: absolute;
+    bottom: -5%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background-color: var(--color-accent);
+    transform: skew(-20deg);
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* 4. COMPONENTES GERAIS (Botões, etc.) */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    padding: 0.875rem 1.5rem;
+    border-radius: 9999px; /* Botões totalmente arredondados */
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* 5. INTERFACE DE CHAT */
+.chat-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px); /* Ajustar altura */
+}
+.chat-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+}
+.chat-messages {
+    flex-grow: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.chat-message {
+    padding: 0.75rem 1.25rem;
+    border-radius: 1.25rem;
+    max-width: 75%;
+    line-height: 1.5;
+}
+.ai-message {
+    background-color: var(--color-primary-light);
+    color: var(--color-text);
+    border-bottom-left-radius: 0.25rem;
+    align-self: flex-start;
+}
+.user-message {
+    background-color: var(--color-primary);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+    align-self: flex-end;
+}
+.chat-input-area {
+    display: flex;
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+    gap: 1rem;
+}
+.chat-input-area input {
+    flex-grow: 1;
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+}
+.chat-input-area input:focus {
+    outline: none;
+    border-color: var(--color-primary);
 }
