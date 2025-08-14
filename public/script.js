@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- CONEXÃO COM O FIREBASE (Vem do index.html) ---
+    // Garante que o código não quebre se o Firebase não carregar
     const db = window.db;
-    const { collection, onSnapshot, addDoc, doc, deleteDoc, serverTimestamp } = window.firestore;
+    const { collection, onSnapshot, addDoc, doc, deleteDoc, serverTimestamp } = window.firestore || {};
 
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const state = {
@@ -36,13 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
             state.activeInterval = null;
         }
 
-        appContainer.innerHTML = '';
         let content = '';
 
         switch (state.currentPage) {
             case 'home': content = renderHomeScreen(); break;
             case 'triage': content = renderTriageScreen('start'); break;
-            case 'result': content = renderResultScreen(); break;
+            // A tela 'result' agora é renderizada diretamente pelo manipulador de eventos
             case 'dashboard': content = renderDashboardScreen(); break;
             case 'callPanel':
                 content = renderCallPanelScreen();
@@ -60,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÕES DE RENDERIZAÇÃO DE TELA (VIEWS) ---
     function renderHomeScreen() {
-        const sortedQueue = [...state.patientQueue].sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
+        // Garante que arrivalTime existe antes de tentar ordenar
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
         const nextPatients = sortedQueue.slice(0, 2);
 
         return `
@@ -133,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
         const priorityClass = priorityClassMap[priority];
 
-        // Apenas retorna o HTML para ser renderizado
         return `${renderHeader('Resultado da Triagem')}<main class="page-content"><div class="content-card fade-in"><div class="result-icon bg-${priorityClass}"><i data-lucide="${icon}" class="priority-${priorityClass}"></i></div><h2>Olá, ${state.currentTriage.patientName}!</h2><p class="text-light" style="margin-top: -1.5rem; margin-bottom: 1rem;">Sua prioridade de atendimento é:</p><p class="result-priority priority-${priorityClass}">${priority}</p><div class="recommendation-box"><h3 style="font-weight: 700; margin-bottom: 0.5rem;">Recomendação:</h3><p class="text-light">${recommendations[priority]}</p></div><button data-action="go-home" class="btn btn-large" style="margin-top: 2rem;">Entendido</button></div></main>`;
     }
 
@@ -142,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDashboardContent() {
-        const sortedQueue = [...state.patientQueue].sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
 
         if (sortedQueue.length === 0) {
             return `<div class="content-card fade-in"><i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2></div>`;
@@ -160,7 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCallPanelScreen() {
-        const sortedQueue = [...state.patientQueue].sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
         const nextPatients = sortedQueue.filter(p => !state.currentlyCalling || p.id !== state.currentlyCalling.id).slice(0, 3);
         const callingPatient = state.currentlyCalling;
         const now = new Date();
@@ -173,8 +176,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateClock() {
         const timeEl = document.getElementById('clock-time');
+        const dateEl = document.getElementById('clock-date');
+        const now = new Date();
+
         if (timeEl) {
-            timeEl.textContent = new Date().toLocaleTimeString('pt-BR');
+            timeEl.textContent = now.toLocaleTimeString('pt-BR');
+        }
+        if (dateEl) {
+            const weekdayEl = dateEl.querySelector('.clock-weekday');
+            const dayMonthEl = dateEl.querySelector('.clock-day-month');
+            const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+            const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+            const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+            if (weekdayEl && weekdayEl.textContent !== capitalizedWeekday) {
+                weekdayEl.textContent = capitalizedWeekday;
+            }
+            if (dayMonthEl && dayMonthEl.textContent !== dayAndMonth) {
+                dayMonthEl.textContent = dayAndMonth;
+            }
         }
     }
 
@@ -197,23 +216,29 @@ document.addEventListener('DOMContentLoaded', () => {
             state.currentPage = 'home';
             render();
         } else if (action === 'start-chat') {
-            // ... (código do chat continua o mesmo)
+            document.getElementById('chat-bubble')?.click();
         } else if (action === 'view-call-panel') {
             state.currentPage = 'callPanel';
             render();
         } else if (action === 'submit-name') {
             const input = document.getElementById('patient-name-input');
+            const existingError = document.querySelector('.error-message');
+            if (existingError) existingError.remove();
+            
             if (input && input.value.trim()) {
                 state.currentTriage.patientName = input.value.trim();
                 render();
             } else {
-                // Lógica de erro
+                input.classList.add('input-error');
+                const errorElement = document.createElement('p');
+                errorElement.className = 'error-message';
+                errorElement.textContent = 'Por favor, preencha seu nome para continuar.';
+                input.insertAdjacentElement('afterend', errorElement);
             }
         } else if (action === 'answer-triage') {
             state.currentTriage.score += parseInt(target.dataset.value, 10);
             if (target.dataset.next === 'final') {
                 state.currentPage = 'result';
-                // Chama a função que salva e depois retorna o HTML
                 appContainer.innerHTML = await renderResultScreenAndSavePatient();
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             } else {
@@ -222,14 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (action === 'call-patient') {
             const patientId = target.dataset.id;
-            // Encontra o paciente no estado local para exibir o nome
             state.currentlyCalling = state.patientQueue.find(p => p.id === patientId);
             
-            // Renderiza imediatamente para mostrar o nome do paciente sendo chamado
             render();
 
             try {
-                // Deleta o paciente do Firestore
                 await deleteDoc(doc(db, "patientQueue", patientId));
                 console.log("Paciente removido do Firestore!");
             } catch (e) {
@@ -238,28 +260,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setTimeout(() => {
                 state.currentlyCalling = null;
-                // Não precisa re-renderizar aqui, o onSnapshot fará isso
+                // O onSnapshot vai atualizar a tela quando o paciente for removido,
+                // mas aqui garantimos que o nome some da seção "Chamando agora"
+                if(state.currentPage === 'home' || state.currentPage === 'callPanel') {
+                    render();
+                }
             }, 15000);
         }
     });
 
     // --- FUNÇÃO PRINCIPAL: OUVINTE DO FIREBASE ---
     function setupFirebaseListeners() {
+        if (!db) {
+            console.error("Conexão com o Firestore não estabelecida!");
+            // Você pode exibir uma mensagem de erro na tela aqui
+            appContainer.innerHTML = "<h1>Erro de conexão com o banco de dados.</h1>";
+            return;
+        }
+
         const patientQueueCollection = collection(db, 'patientQueue');
         
         onSnapshot(patientQueueCollection, (snapshot) => {
             console.log("Recebida atualização da fila de pacientes!");
             const newPatientQueue = [];
             snapshot.forEach((doc) => {
-                newPatientQueue.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
+                // Adiciona uma verificação para garantir que os dados existem
+                if (doc.data() && doc.data().arrivalTime) {
+                    newPatientQueue.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                }
             });
             
             state.patientQueue = newPatientQueue;
 
-            // Se a página atual for o dashboard, renderiza seu conteúdo específico
             if (state.currentPage === 'dashboard') {
                 const dashboardContent = document.getElementById('dashboard-content');
                 if (dashboardContent) {
@@ -267,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
             } 
-            // Para outras telas que dependem da fila (home, painel), faz uma re-renderização geral
             else if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
                 render();
             }
