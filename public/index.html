@@ -11,10 +11,7 @@
     
     <!-- Fonte Principal (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Ícones (Lucide) - Carregado de forma assíncrona para não bloquear a renderização -->
-    <script src="lucide-static.js" defer></script>
-
+    
     <!-- Nossas Folhas de Estilo -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="chat.css">
@@ -23,8 +20,11 @@
     <!-- Ponto de entrada da aplicação. O conteúdo será injetado aqui. -->
     <div id="app"></div>
 
-    <!-- Nossos Scripts - Carregados no final para performance -->
+    <!-- Ícones Lucide - Carregado do CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Nossos Scripts -->
     <script src="script.js"></script>
-    <script src="chat.js" defer></script>
+    <script src="chat.js"></script>
 </body>
 </html>

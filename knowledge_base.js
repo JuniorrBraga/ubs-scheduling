@@ -1,32 +1,80 @@
 // knowledge_base.js
 
 const ubsInfo = `
-Informações sobre a Unidade Básica de Saúde (UBS) Atendimentos:
+=== INFORMAÇÕES DA UBS ATENDIMENTOS ===
 
-- **Horário de Funcionamento**:
-  - Segunda a Sexta: 7h00 às 19h00.
-  - Sábados, Domingos e Feriados: Fechado.
+HORÁRIOS DE FUNCIONAMENTO:
+- Segunda a Sexta: 7h às 17h
+- Sábados: 7h às 12h
+- Domingos e Feriados: Fechado
+- Pronto Atendimento: 24 horas (casos de urgência)
 
-- **Serviços Oferecidos**:
-  - Triagem de pacientes com classificação de risco.
-  - Consultas médicas (clínica geral).
-  - Renovação de receitas para medicamentos de uso contínuo.
-  - Aplicação de vacinas (conforme calendário nacional).
-  - Curativos simples.
-  - Coleta de exames laboratoriais (requer agendamento prévio).
+SERVIÇOS OFERECIDOS:
+- Consultas médicas (Clínico Geral, Pediatria, Ginecologia)
+- Consultas odontológicas
+- Vacinação (todas as idades)
+- Exames laboratoriais básicos
+- Curativos e procedimentos simples
+- Aferição de pressão arterial
+- Teste de glicemia
+- Inalação e nebulização
+- Consultas de pré-natal
+- Planejamento familiar
+- Consultas de puericultura (acompanhamento infantil)
 
-- **Procedimentos Comuns**:
-  - **Agendamento de Consultas**: O agendamento inicial é feito através da triagem na tela "Sou Paciente". Consultas de retorno são marcadas pela equipe ao final do atendimento.
-  - **Renovação de Receitas**: O paciente deve usar a opção "Renovação de receita" na triagem. É necessário ter o nome do medicamento ou a receita antiga.
-  - **Resultados de Exames**: Devem ser retirados na recepção, de segunda a sexta, das 10h às 16h, apresentando um documento de identificação.
+COMO AGENDAR:
+- Pessoalmente na recepção
+- Por telefone: (11) 3456-7890
+- Online pelo site: www.ubsatendimentos.gov.br
+- App UBS Digital (disponível nas lojas de aplicativos)
 
-- **Contato**:
-  - Endereço: Rua da Saúde, 123 - Centro.
-  - Telefone para dúvidas gerais: (11) 5555-1234 (Este telefone não realiza agendamentos).
+DOCUMENTOS NECESSÁRIOS:
+- RG ou documento com foto
+- CPF
+- Cartão SUS
+- Comprovante de residência (cópia)
 
-- **Informações sobre Condições de Saúde (Lembretes para a IA)**:
-  - **Febre**: Considerar febre acima de 37.8°C. Recomendar atendimento médico se for alta (>38.5°C), persistente por mais de 3 dias, ou acompanhada de sintomas graves como dificuldade para respirar ou dor no peito.
-  - **Dor de Cabeça**: Se a dor for súbita e intensa, diferente do habitual, ou acompanhada de febre, rigidez no pescoço ou confusão mental, recomendar atendimento de emergência.
+MEDICAMENTOS:
+- Farmácia básica disponível
+- Medicamentos essenciais gratuitos
+- Receitas válidas por 30 dias
+- Horário da farmácia: 7h às 16h (segunda a sexta)
+
+EXAMES:
+- Coleta de sangue: Segunda, Quarta e Sexta (7h às 10h)
+- Exame de urina: todos os dias úteis
+- Eletrocardiograma: mediante agendamento
+- Resultados disponíveis em 3-5 dias úteis
+
+ESPECIALIDADES:
+- Cardiologia: Terças e Quintas (agendamento obrigatório)
+- Dermatologia: Primeira segunda-feira do mês
+- Psicologia: Segunda a Quinta (agendamento obrigatório)
+- Fisioterapia: Segunda a Sexta (referenciamento médico necessário)
+
+PROGRAMAS ESPECIAIS:
+- Hiperdia (diabetes e hipertensão)
+- Saúde da Mulher
+- Saúde do Idoso
+- Saúde Mental
+- Programa de Tabagismo
+
+EMERGÊNCIAS:
+Para casos graves, procure imediatamente:
+- UPA (Unidade de Pronto Atendimento)
+- Hospital mais próximo
+- SAMU: 192
+
+CONTATOS:
+- Recepção: (11) 3456-7890
+- Emergência: 192
+- Ouvidoria: (11) 3456-7891
+- Email: contato@ubsatendimentos.gov.br
+
+ENDEREÇO:
+Rua da Saúde, 123 - Centro
+CEP: 01234-567
+Próximo ao Terminal Central de Ônibus
 `;
 
 module.exports = { ubsInfo };

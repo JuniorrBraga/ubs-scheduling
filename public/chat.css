@@ -16,11 +16,6 @@
     z-index: 1000;
 }
 
-/* Balão flutuante para abrir o chat (MODIFICADO) */
-.chat-bubble {
-    display: none !important; /* Esconde o balão de chat permanentemente */
-}
-
 /* Janela principal do chat */
 .chat-window {
     position: fixed; /* Garante que a janela fique sobre todo o conteúdo */
@@ -75,6 +70,7 @@
     transition: opacity 0.2s;
     padding: 0;
 }
+
 .chat-header button:hover {
     opacity: 1;
 }
@@ -168,6 +164,26 @@
 .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes typing {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1.0); }
+    0%, 80%, 100% { 
+        transform: scale(0);
+    }
+    40% { 
+        transform: scale(1.0);
+    }
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 480px) {
+    .chat-window {
+        width: calc(100vw - 20px);
+        height: calc(100vh - 40px);
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
 }
