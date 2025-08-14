@@ -456,7 +456,7 @@ body {
 }
 
 
-/* style.css (CORRIGIDO) */
+/* style.css (CORRIGIDO PARA MOBILE) */
 
 /* --- Variáveis Globais de Design --- */
 :root {
@@ -714,18 +714,85 @@ body {
 /* CORRIGIDO: Seletor mais específico e sem !important */
 .input-field.input-error { border-color: var(--danger-red); }
 
-/* Responsividade */
+/* ================================================= */
+/* --- SEÇÃO DE RESPONSIVIDADE (MOBILE-FIRST) --- */
+/* ================================================= */
+
+/* Para telas maiores que desktop (não muda muito) */
 @media (max-width: 992px) {
     .health-portal { flex-direction: column; gap: 3rem; }
     .portal-actions h2 { font-size: 2.2rem; text-align: center; }
     .actions-grid { grid-template-columns: 1fr; max-width: 100%; }
     .panel-main { grid-template-columns: 1fr; }
 }
+
+/* Para tablets e celulares grandes (onde as maiores mudanças ocorrem) */
+@media (max-width: 768px) {
+    .panel-main {
+        grid-template-columns: 1fr; /* Garante uma única coluna */
+    }
+
+    .calling-now .patient-name {
+        font-size: 3.5rem; /* Reduz o nome do paciente para caber melhor */
+    }
+
+    .panel-header h1 {
+        font-size: 1.8rem; /* Reduz o título principal */
+    }
+
+    .clock #clock-time {
+        font-size: 2.5rem; /* Reduz o relógio */
+    }
+}
+
+
+/* Para celulares (onde o layout original quebrava) */
 @media (max-width: 576px) {
     .main-header { padding: 1rem 1.5rem; }
     .portal-actions h2 { font-size: 1.8rem; }
     .content-card { padding: 1.5rem; }
     .patient-card { flex-direction: column; align-items: stretch; }
-    .calling-now .patient-name { font-size: 3rem; }
-    .panel-header { text-align: center; flex-direction: column; gap: 1rem; align-items: center; } /* CORRIGIDO: Removido seletor redundante do .clock e adicionado flexbox para alinhar */
+    
+    /* --- CORREÇÕES PARA O PAINEL DE CHAMADAS --- */
+    .call-panel-page {
+        padding: 1.5rem; /* Menos padding nas laterais */
+    }
+
+    .panel-header {
+        flex-direction: column; /* Coloca título e relógio um sobre o outro */
+        align-items: center;   /* Centraliza tudo */
+        text-align: center;
+        gap: 1rem;             /* Adiciona um espaço entre o título e o relógio */
+    }
+
+    .clock {
+        text-align: center;   /* Garante que o relógio fique centralizado */
+        width: 100%;
+    }
+
+    .clock #clock-time {
+        font-size: 3rem;      /* Ajusta o tamanho da hora */
+        letter-spacing: -1px;
+    }
+
+    .clock #clock-date {
+        font-size: 0.9rem;    /* Ajusta o tamanho da data */
+    }
+
+    .calling-now {
+        padding: 2rem; /* Menos padding interno no card de chamada */
+    }
+
+    .calling-now .patient-name {
+        font-size: 2.8rem; /* Reduz ainda mais o nome do paciente */
+    }
+
+    .next-patients li {
+        font-size: 1.1rem; /* Diminui a fonte da lista de próximos */
+    }
+
+    .close-panel-btn {
+        top: 10px;
+        right: 10px;
+    }
 }
