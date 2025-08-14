@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- COMUNICAÇÃO COM A IA (GEMINI) VIA BACKEND ---
         async function getGeminiResponse(question) {
-            const apiUrl = 'http://localhost:3000/chat'; // URL do nosso backend
+            const apiUrl = '/api/chat'; // URL do nosso backend
 
             try {
                 const response = await fetch(apiUrl, {
