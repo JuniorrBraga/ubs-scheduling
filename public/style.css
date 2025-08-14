@@ -766,18 +766,26 @@ body {
     }
 
     .clock {
-        text-align: center;   /* Garante que o relógio fique centralizado */
-        width: 100%;
-    }
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Garante o alinhamento à direita */
+  gap: 0.25rem;          /* Adiciona um pequeno espaço entre a hora e a data */
+}
 
-    .clock #clock-time {
-        font-size: 3rem;      /* Ajusta o tamanho da hora */
-        letter-spacing: -1px;
-    }
+.clock #clock-time {
+  font-size: 3.2rem; /* Um pouco menor para não dominar tanto */
+  font-weight: 600;  /* Um pouco mais leve que o bold (700) */
+  letter-spacing: -1.5px;
+  line-height: 1;    /* Remove espaços extras verticais */
+}
 
-    .clock #clock-date {
-        font-size: 0.9rem;    /* Ajusta o tamanho da data */
-    }
+.clock #clock-date {
+  color: #e5e7eb;      /* Um branco mais visível que o cinza anterior */
+  font-size: 1.15rem;   /* Maior para melhor leitura e equilíbrio */
+  font-weight: 400;     /* Peso normal para contrastar com a hora */
+  text-transform: capitalize; /* Deixa a primeira letra do dia maiúscula */
+}
 
     .calling-now {
         padding: 2rem; /* Menos padding interno no card de chamada */
