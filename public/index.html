@@ -20,11 +20,50 @@
     <!-- Ponto de entrada da aplicação. O conteúdo será injetado aqui. -->
     <div id="app"></div>
 
-    <!-- Ícones Lucide - Carregado do CDN -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Ícones Lucide (versão local que corrigimos) -->
+    <script src="lucide-static.js" defer></script>
     
+    <!-- ======================================================= -->
+    <!-- NOVOS SCRIPTS DO FIREBASE ADICIONADOS AQUI -->
+    <!-- ======================================================= -->
+    <script type="module">
+        // Importa apenas os módulos que vamos usar
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // =================================================================
+        // COLE A SUA CONFIGURAÇÃO DO FIREBASE AQUI DENTRO
+        // (Substitua este objeto pelo que o Firebase te deu)
+        // =================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwW8RSg7sbpHUChfjLMmpzAwsdCqPiqLQ",
+            authDomain: "ubs-agendamento-cbaf5.firebaseapp.com",
+            projectId: "ubs-agendamento-cbaf5",
+            storageBucket: "ubs-agendamento-cbaf5.appspot.com",
+            messagingSenderId: "990715767817",
+            appId: "1:990715767817:web:8a691d12b6d89156e81cd8"
+        };
+        // =================================================================
+
+        // Inicializa o Firebase e o Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Torna o 'db' e as funções do Firestore acessíveis globalmente para o script.js
+        window.db = db;
+        window.firestore = {
+            collection,
+            onSnapshot,
+            addDoc,
+            doc,
+            deleteDoc,
+            serverTimestamp // Adiciona o serverTimestamp para datas mais precisas
+        };
+    </script>
+    <!-- ======================================================= -->
+
     <!-- Nossos Scripts -->
-    <script src="script.js"></script>
-    <script src="chat.js"></script>
+    <script src="script.js" defer></script>
+    <script src="chat.js" defer></script>
 </body>
 </html>
