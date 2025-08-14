@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const patientCards = sortedQueue.map((p, i) => {
             const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-            const priorityClass = p.priority === 'Média' ? 'media' : p.priority.toLowerCase();
+            const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase();
             
             return `
             <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
@@ -355,6 +355,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ).slice(0, 3);
         const callingPatient = state.currentlyCalling;
         const now = new Date();
+        
+        // **MUDANÇA AQUI**: Separamos a data em duas partes
+        const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+        const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+        const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
 
         return `
         <div class="call-panel-page">
@@ -365,7 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="clock">
                     <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
-                    <span id="clock-date">${now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                    
+                    <!-- **MUDANÇA AQUI**: A data agora tem uma estrutura com spans -->
+                    <span id="clock-date">
+                        <span class="clock-weekday">${capitalizedWeekday}</span>
+                        <span class="clock-day-month">${dayAndMonth}</span>
+                    </span>
                 </div>
             </header>
             
@@ -379,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2>Próximos Pacientes</h2>
                     <ul>
                         ${nextPatients.map(p => {
-                            const priorityClass = p.priority === 'Média' ? 'media' : p.priority.toLowerCase();
+                            const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase();
                             return `<li><span>${p.name}</span><span class="priority-tag tag-${priorityClass}">${p.priority}</span></li>`;
                         }).join('')}
                         ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
@@ -388,15 +398,38 @@ document.addEventListener('DOMContentLoaded', () => {
             </main>
             
             <button data-action="go-home" class="close-panel-btn">
-                <i data-lucide="x"></i> </button>
+                <i data-lucide="x"></i>
+            </button>
         </div>
         `;
     }
 
+    // **MUDANÇA AQUI**: A função agora atualiza a data também
     function updateClock() {
+        const now = new Date();
         const timeEl = document.getElementById('clock-time');
+        const dateEl = document.getElementById('clock-date');
+
         if (timeEl) {
-            timeEl.textContent = new Date().toLocaleTimeString('pt-BR');
+            timeEl.textContent = now.toLocaleTimeString('pt-BR');
+        }
+
+        // Atualiza a data a cada segundo também, para o caso de virar o dia
+        if (dateEl) {
+            const weekdayEl = dateEl.querySelector('.clock-weekday');
+            const dayMonthEl = dateEl.querySelector('.clock-day-month');
+
+            const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+            const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+            const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+            // Apenas atualiza o texto se ele mudou para evitar repintura desnecessária
+            if (weekdayEl && weekdayEl.textContent !== capitalizedWeekday) {
+                weekdayEl.textContent = capitalizedWeekday;
+            }
+            if (dayMonthEl && dayMonthEl.textContent !== dayAndMonth) {
+                dayMonthEl.textContent = dayAndMonth;
+            }
         }
     }
 
