@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const db = firebase.firestore();
     const patientQueueCollection = db.collection('patientQueue');
+    const currentCallDoc = db.collection('appState').doc('currentCall');
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const state = {
         currentPage: 'home', // 'home', 'triage', 'result', 'dashboard', 'callPanel'
@@ -530,31 +531,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (action === 'call-patient') {
-            const patientId = target.dataset.id; // O ID do Firestore é uma string
+            const patientId = target.dataset.id;
             const patientData = state.patientQueue.find(p => p.id === patientId);
-            state.currentlyCalling = patientData;
 
-            if (patientId) {
-                db.collection('patientQueue').doc(patientId).delete()
-                    .then(() => console.log("Paciente removido do Firestore!"))
-                    .catch(e => console.error("Erro ao remover paciente: ", e));
+            if (patientData) {
+                // 1. ATUALIZA O ESTADO NO FIREBASE
+                currentCallDoc.set({
+                    name: patientData.name,
+                    priority: patientData.priority
+                }).then(() => {
+                    // 2. SÓ DEPOIS DE ATUALIZAR, REMOVE O PACIENTE DA FILA
+                    patientQueueCollection.doc(patientId).delete();
+                });
+
+                // 3. AGENDA A LIMPEZA DO PAINEL PARA DAQUI A 15 SEGUNDOS
+                setTimeout(() => {
+                    currentCallDoc.set({ name: 'Aguardando chamada...' });
+                }, 15000);
             }
-
-            const dashboardContent = document.getElementById('dashboard-content');
-            if (dashboardContent) {
-                dashboardContent.innerHTML = renderDashboardContent();
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            }
-
-            // Simula o fim do atendimento
-            setTimeout(() => {
-                state.currentlyCalling = null;
-            }, 15000); // Paciente fica "em chamado" por 15s
         }
     });
     // --- FUNÇÃO PRINCIPAL: OUVINTE DO FIREBASE ---
+    // --- OUVINTE PARA A CHAMADA ATUAL ---
     function setupFirebaseListeners() {
         patientQueueCollection.onSnapshot(snapshot => {
             console.log("Recebida atualização da fila de pacientes!");
@@ -570,19 +568,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             state.patientQueue = newPatientQueue;
 
-            // Re-renderiza a tela atual com os novos dados
+            // Re-renderiza o dashboard se estivermos nele
             if (state.currentPage === 'dashboard') {
                 const dashboardContent = document.getElementById('dashboard-content');
                 if (dashboardContent) {
                     dashboardContent.innerHTML = renderDashboardContent();
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
-            } else if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
+            }
+        });
+    }
+
+    // --- OUVINTE PARA A CHAMADA ATUAL ---
+    function setupCurrentCallListener() {
+        currentCallDoc.onSnapshot(doc => {
+            if (doc.exists && doc.data().name) {
+                console.log("Recebida atualização da chamada:", doc.data().name);
+                state.currentlyCalling = doc.data(); // Atualiza o estado local com os dados do Firebase
+            } else {
+                // Se o documento não existir ou não tiver nome, reseta
+                state.currentlyCalling = null;
+            }
+
+            // Re-renderiza as telas que mostram a chamada atual
+            if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
                 render();
             }
         });
     }
+
     // --- INICIALIZAÇÃO ---
-    setupFirebaseListeners();
-    render();
+    setupFirebaseListeners(); // Inicia o ouvinte da fila
+    setupCurrentCallListener(); // Inicia o ouvinte da chamada atual
+    render(); // Renderiza a tela inicial
 });
