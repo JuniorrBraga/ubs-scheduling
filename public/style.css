@@ -411,27 +411,29 @@ body {
 .dashboard-grid {
     width: 100%;
     max-width: 1200px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 1.5rem;
+    display: flex; /* Alterado para flex para melhor alinhamento */
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap; /* Permite que os cards quebrem a linha */
 }
 
 .patient-card {
     background-color: var(--white);
     border-radius: 12px;
     box-shadow: 0 5px 15px var(--shadow-light);
-    border-left: 5px solid;
+    border-left: 6px solid; /* A borda colorida fica só na esquerda */
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     transition: all 0.3s ease;
+    width: 380px; /* Largura fixa para consistência */
 }
 
 .patient-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px var(--shadow-medium);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 25px var(--shadow-medium);
 }
 
 .patient-card.skeleton {
@@ -441,18 +443,65 @@ body {
     animation: pulse 1.5s infinite ease-in-out;
 }
 
-.patient-card.priority-alta { border-color: var(--danger-red); }
-.patient-card.priority-media { border-color: var(--warning-yellow); }
-.patient-card.priority-baixa { border-color: var(--success-green); }
-
-.patient-info {
-    flex-grow: 1;
-}
+.patient-card.priority-high, .name.priority-high { border-color: var(--danger-red); color: var(--danger-red); }
+.patient-card.priority-medium, .name.priority-medium { border-color: var(--warning-yellow); color: var(--warning-yellow); }
+.patient-card.priority-low, .name.priority-low { border-color: var(--success-green); color: var(--success-green); }
 
 .patient-info .name {
-    font-size: 1.2rem;
+    font-size: 1.5rem; /* Nome maior */
     font-weight: 700;
+    line-height: 1.2;
     margin-bottom: 0.5rem;
+}
+
+.patient-info .name span {
+    display: block; /* Para o sobrenome ficar abaixo do nome */
+}
+
+.patient-info .details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+.patient-info .details i {
+    width: 16px;
+    height: 16px;
+}
+
+.patient-actions {
+    display: flex;
+    flex-direction: column; /* Coloca a tag acima do botão */
+    align-items: flex-end; /* Alinha à direita */
+    gap: 1rem;
+}
+
+/* Novo estilo para a tag de prioridade */
+.priority-tag {
+    font-weight: 600;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: var(--white);
+}
+
+/* Cores de fundo das tags */
+.tag-high { background-color: var(--danger-red); }
+.tag-medium { background-color: var(--warning-yellow); }
+.tag-low { background-color: var(--success-green); }
+
+/* Novo estilo para o botão "Chamar" */
+.btn-call {
+    background-image: none; /* Remove o gradiente padrão */
+    background-color: var(--primary-blue);
+    border-radius: 50px;
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-call:hover {
+    background-color: var(--primary-blue-dark);
+    transform: translateY(-2px); /* Mantém um efeito sutil */
 }
 
 
@@ -798,3 +847,42 @@ body {
 }
 
 /* Diminui a fonte da lista de próximos *
+
+/* Estilos para tempo de espera no Painel Público */
+.next-patients li {
+    align-items: center; /* Re-centraliza verticalmente */
+}
+
+.patient-name-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+}
+
+.wait-time-display {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #9ca3af; /* Cinza claro */
+}
+
+
+
+/* Estilos para o tempo de espera no painel público */
+.patient-name-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.wait-time-display {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #9ca3af; /* Um cinza claro para não chamar muita atenção */
+}
+
+/* Ajuste para garantir o alinhamento vertical na lista */
+.next-patients li {
+   align-items: center;
+}

@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const appContainer = document.getElementById('app');
 
+    
+
     // --- BANCO DE DADOS DAS PERGUNTAS DE TRIAGEM ---
     const triageQuestions = {
     'start': {
@@ -308,107 +310,124 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function renderDashboardContent() {
-        const sortedQueue = [...state.patientQueue].sort((a, b) => 
-            b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
-        );
+   function renderDashboardContent() {
+    const sortedQueue = [...state.patientQueue].sort((a, b) => 
+        b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
+    );
 
-        if (sortedQueue.length === 0) {
-            return `
-            <div class="content-card fade-in">
-                <i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2>
-            </div>
-            `;
-        }
-
-        const patientCards = sortedQueue.map((p, i) => {
-            const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-            
-            // --- CORREÇÃO AQUI ---
-            // Mapeia a prioridade em português para a classe em inglês do CSS
-            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-            const priorityClass = priorityClassMap[p.priority] || 'low';
-            // --- FIM DA CORREÇÃO ---
-
-            return `
-            <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
-                <div class="patient-info">
-                    <div class="name">${p.name}</div>
-                    <div class="details">
-                        <i data-lucide="clock" style="width:16px;"></i> Aguardando há ${timeWaiting} min
-                    </div>
-                </div>
-                <div class="patient-actions">
-                    <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
-                    <button data-action="call-patient" data-id="${p.id}" class="btn">
-                        <i data-lucide="megaphone"></i> Chamar
-                    </button>
-                </div>
-            </div>
-            `;
-        }).join('');
-
-        return `<div class="dashboard-grid">${patientCards}</div>`;
-    }
-
-    function renderCallPanelScreen() {
-        const sortedQueue = [...state.patientQueue].sort((a, b) => 
-            b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
-        );
-        const nextPatients = sortedQueue.filter(p => 
-            !state.currentlyCalling || p.id !== state.currentlyCalling.id
-        ).slice(0, 3);
-        const callingPatient = state.currentlyCalling;
-        const now = new Date();
-        
-        const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
-        const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
-        const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
-
+    if (sortedQueue.length === 0) {
         return `
-        <div class="call-panel-page">
-            <header class="panel-header">
-                <div>
-                    <h1>Painel de Atendimento</h1>
-                    <p>UBS Atendimentos</p>
-                </div>
-                <div class="clock">
-                    <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
-                    <span id="clock-date">
-                        <span class="clock-weekday">${capitalizedWeekday}</span>
-                        <span class="clock-day-month">${dayAndMonth}</span>
-                    </span>
-                </div>
-            </header>
-            
-            <main class="panel-main">
-                <div class="calling-now ${callingPatient ? 'active' : ''}">
-                    <p>Chamando Agora</p>
-                    <span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span>
-                </div>
-                
-                <div class="next-patients">
-                    <h2>Próximos Pacientes</h2>
-                    <ul>
-                        ${nextPatients.map(p => {
-                            // --- CORREÇÃO AQUI ---
-                            // Mapeia a prioridade em português para a classe em inglês do CSS
-                            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-                            const priorityClass = priorityClassMap[p.priority] || 'low';
-                            // --- FIM DA CORREÇÃO ---
-                            return `<li><span>${p.name}</span><span class="priority-tag tag-${priorityClass}">${p.priority}</span></li>`;
-                        }).join('')}
-                        ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
-                    </ul>
-                </div>
-            </main>
-            
-            <button data-action="go-home" class="close-panel-btn">
-                <i data-lucide="x"></i>
-            </button>
+        <div class="content-card fade-in">
+            <i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2>
         </div>
         `;
     }
+
+    const patientCards = sortedQueue.map((p, i) => {
+        const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
+        
+        const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+        const priorityClass = priorityClassMap[p.priority] || 'low';
+        
+        // Divide o nome para estilização
+        const nameParts = p.name.split(' ');
+        const firstName = nameParts.shift();
+        const lastName = nameParts.join(' ');
+
+        return `
+        <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
+            <div class="patient-info">
+                <div class="name priority-${priorityClass}">
+                    <span>${firstName}</span>
+                    <span>${lastName}</span>
+                </div>
+                <div class="details">
+                    <i data-lucide="clock"></i> Tempo estimado ${timeWaiting} min
+                </div>
+            </div>
+            <div class="patient-actions">
+                <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+                <button data-action="call-patient" data-id="${p.id}" class="btn btn-call">
+                    <i data-lucide="megaphone"></i> Chamar
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    return `<div class="dashboard-grid">${patientCards}</div>`;
+}
+
+    function renderCallPanelScreen() {
+    const sortedQueue = [...state.patientQueue].sort((a, b) => 
+        b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
+    );
+    const nextPatients = sortedQueue.filter(p => 
+        !state.currentlyCalling || p.id !== state.currentlyCalling.id
+    ).slice(0, 3);
+    const callingPatient = state.currentlyCalling;
+    const now = new Date();
+    
+    const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+    const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+    const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+    return `
+    <div class="call-panel-page">
+        <header class="panel-header">
+            <div>
+                <h1>Painel de Atendimento</h1>
+                <p>UBS Atendimentos</p>
+            </div>
+            <div class="clock">
+                <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
+                <span id="clock-date">
+                    <span class="clock-weekday">${capitalizedWeekday}</span>
+                    <span class="clock-day-month">${dayAndMonth}</span>
+                </span>
+            </div>
+        </header>
+        
+        <main class="panel-main">
+            <div class="calling-now ${callingPatient ? 'active' : ''}">
+                <p>Chamando Agora</p>
+                <span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span>
+            </div>
+            
+            <div class="next-patients">
+                <h2>Próximos Pacientes</h2>
+                 <ul>
+                        ${nextPatients.map(p => {
+                            // Lógica para definir a classe da cor (já está correto no seu código)
+                            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+                            const priorityClass = priorityClassMap[p.priority] || 'low';
+                            
+                            // Lógica para calcular o tempo de espera (já está correto no seu código)
+                            const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
+                            const waitTimeText = `Tempo estimado ${timeWaiting} min`;
+
+                            // Este é o return final que monta o HTML na tela
+                            return `
+                                <li>
+                                    <div class="patient-name-wrapper">
+                                        <span>${p.name}</span>
+                                        <small class="wait-time-display">${waitTimeText}</small>
+                                    </div>
+                                    <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                        ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
+                    </ul>
+            </div>
+        </main>
+        
+        <button data-action="go-home" class="close-panel-btn">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+    `;
+}
 
     // **MUDANÇA AQUI**: A função agora atualiza a data também
     function updateClock() {
