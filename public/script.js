@@ -91,16 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = renderResultScreen();
                 break;
             case 'dashboard':
-                content = renderDashboardScreen();
-                setTimeout(() => {
-                    const dashboardContent = document.getElementById('dashboard-content');
-                    if (dashboardContent) {
-                        dashboardContent.innerHTML = renderDashboardContent();
-                        if (typeof lucide !== 'undefined') {
-                            lucide.createIcons();
-                        }
-                    }
-                }, 500);
+                content = renderDashboardScreen(); // Apenas renderiza a moldura
+                // A mágica acontece no ouvinte do Firebase a partir de agora
                 break;
             case 'callPanel':
                 content = renderCallPanelScreen();
@@ -286,18 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDashboardScreen() {
+        // Esta função agora SÓ cria a estrutura base do dashboard.
         return `
-        ${renderHeader('Painel de Atendimento')}
-        <main id="dashboard-content" class="page-content">
-            <div class="dashboard-grid">
-                <div class="patient-card skeleton"></div>
-                <div class="patient-card skeleton"></div>
-                <div class="patient-card skeleton"></div>
+    ${renderHeader('Painel de Atendimento')}
+    <main id="dashboard-content" class="page-content">
+        <div id="patient-list-container" class="dashboard-grid">
             </div>
-        </main>
-        `;
+    </main>
+    `;
     }
-
     function renderDashboardContent() {
         const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
             // MUDANÇA AQUI
@@ -555,33 +544,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- OUVINTE PARA A CHAMADA ATUAL ---
     // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
     // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
+    // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
     function setupFirebaseListeners() {
-        patientQueueCollection.onSnapshot(snapshot => {
-            console.log("Recebida atualização da fila de pacientes!");
-            const newPatientQueue = [];
-            snapshot.forEach(doc => {
-                if (doc.data() && doc.data().arrivalTime) {
-                    newPatientQueue.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+        patientQueueCollection
+            .orderBy("priorityLevel", "desc") // Pede ao Firebase para já ordenar os dados
+            .orderBy("arrivalTime", "asc")   // (Isso é mais eficiente)
+            .onSnapshot(snapshot => {
+                console.log("Recebida atualização da fila de pacientes!");
+
+                // Atualiza a lista de pacientes no estado local
+                state.patientQueue = [];
+                snapshot.forEach(doc => {
+                    if (doc.data() && doc.data().arrivalTime) {
+                        state.patientQueue.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+
+                // Se o usuário estiver na página do dashboard, chama a atualização cirúrgica.
+                if (state.currentPage === 'dashboard') {
+                    updateDashboardView();
+                }
+                // Se estiver na home ou no painel, o outro ouvinte já cuida da atualização.
+                // Se um paciente novo chega, precisamos atualizar a home também.
+                else if (state.currentPage === 'home') {
+                    render();
                 }
             });
-
-            state.patientQueue = newPatientQueue;
-
-            // Agora, ele redesenha QUALQUER UMA das telas relevantes
-            if (state.currentPage === 'dashboard') {
-                const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) {
-                    dashboardContent.innerHTML = renderDashboardContent();
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            } else if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
-                render(); // A função render() já cuida de redesenhar a home e o painel
-            }
-        });
-    } // <-- FIM DA FUNÇÃO setupFirebaseListeners
+    }
 
     // --- OUVINTE PARA A CHAMADA ATUAL ---
     function setupCurrentCallListener() {
@@ -600,6 +589,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     } // <-- FIM DA FUNÇÃO setupCurrentCallListener
+
+    function updateDashboardView() {
+        const container = document.getElementById('patient-list-container');
+        if (!container) return; // Se o container não existe na tela, não faz nada.
+
+        // A função renderDashboardContent continua igual, mas agora seu resultado
+        // é usado para preencher apenas o container da lista.
+        const patientCardsHTML = renderDashboardContent();
+
+        container.innerHTML = patientCardsHTML;
+
+        // Reativa os ícones após a atualização
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
 
     // --- INICIALIZAÇÃO ---
     setupFirebaseListeners(); // Inicia o ouvinte da fila
