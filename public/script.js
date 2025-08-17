@@ -100,10 +100,19 @@ document.addEventListener('DOMContentLoaded', () => {
             window.openChat && window.openChat();
         } else if (action === 'submit-name') {
             const input = document.getElementById('patient-name-input');
+            const errorEl = input.nextElementSibling;
+            if(errorEl && errorEl.classList.contains('error-message')) errorEl.remove();
+            
             if (input && input.value.trim()) {
                 state.currentTriage.patientName = input.value.trim();
                 navigateTo('triage');
-            } else { /* ... lógica de erro ... */ }
+            } else { 
+                input.classList.add('input-error');
+                const errorElement = document.createElement('p');
+                errorElement.className = 'error-message';
+                errorElement.textContent = 'Por favor, preencha seu nome para continuar.';
+                input.insertAdjacentElement('afterend', errorElement);
+            }
         } else if (action === 'answer-triage') {
             state.currentTriage.score += parseInt(target.dataset.value, 10);
             const next = target.dataset.next;
