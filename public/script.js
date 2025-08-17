@@ -352,14 +352,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCallPanelScreen() {
         const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
-            // MUDANÇA AQUI
             const timeA = a.arrivalTime.toDate().getTime();
             const timeB = b.arrivalTime.toDate().getTime();
             return b.priorityLevel - a.priorityLevel || timeA - timeB;
         });
+
+        // MUDANÇA PRINCIPAL AQUI:
+        // Agora, a lista de "próximos" SEMPRE vai filtrar quem está sendo chamado.
         const nextPatients = sortedQueue.filter(p =>
             !state.currentlyCalling || p.id !== state.currentlyCalling.id
         ).slice(0, 3);
+
         const callingPatient = state.currentlyCalling;
         const now = new Date();
 
@@ -386,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <main class="panel-main">
             <div class="calling-now ${callingPatient ? 'active' : ''}">
                 <p>Chamando Agora</p>
-                <span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span>
+                <span class="patient-name">${callingPatient ? (callingPatient.name || 'Aguardando...') : 'Aguardando chamada...'}</span>
             </div>
             
             <div class="next-patients">
@@ -395,12 +398,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${nextPatients.map(p => {
             const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
             const priorityClass = priorityClassMap[p.priority] || 'low';
-
-            // MUDANÇA AQUI
             const arrivalDateTime = p.arrivalTime.toDate();
             const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
             const waitTimeText = `Aguardando há ${timeWaiting} min`;
-
             return `
                                 <li>
                                     <div class="patient-name-wrapper">
@@ -553,6 +553,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // --- FUNÇÃO PRINCIPAL: OUVINTE DO FIREBASE ---
     // --- OUVINTE PARA A CHAMADA ATUAL ---
+    // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
+    // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
     function setupFirebaseListeners() {
         patientQueueCollection.onSnapshot(snapshot => {
             console.log("Recebida atualização da fila de pacientes!");
@@ -568,16 +570,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             state.patientQueue = newPatientQueue;
 
-            // Re-renderiza o dashboard se estivermos nele
+            // Agora, ele redesenha QUALQUER UMA das telas relevantes
             if (state.currentPage === 'dashboard') {
                 const dashboardContent = document.getElementById('dashboard-content');
                 if (dashboardContent) {
                     dashboardContent.innerHTML = renderDashboardContent();
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
+            } else if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
+                render(); // A função render() já cuida de redesenhar a home e o painel
             }
         });
-    }
+    } // <-- FIM DA FUNÇÃO setupFirebaseListeners
 
     // --- OUVINTE PARA A CHAMADA ATUAL ---
     function setupCurrentCallListener() {
@@ -595,10 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 render();
             }
         });
-    }
+    } // <-- FIM DA FUNÇÃO setupCurrentCallListener
 
     // --- INICIALIZAÇÃO ---
     setupFirebaseListeners(); // Inicia o ouvinte da fila
     setupCurrentCallListener(); // Inicia o ouvinte da chamada atual
     render(); // Renderiza a tela inicial
-});
+
+}); // <-- FIM DO 'DOMContentLoaded'
