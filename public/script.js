@@ -91,8 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = renderResultScreen();
                 break;
             case 'dashboard':
-                content = renderDashboardScreen(); // Apenas renderiza a moldura
-                // A mágica acontece no ouvinte do Firebase a partir de agora
+                content = renderDashboardScreen(); // 1. Renderiza a moldura
+
+                // 2. USA UM setTimeout PARA GARANTIR QUE A MOLDURA EXISTA ANTES DE PREENCHÊ-LA
+                setTimeout(() => {
+                    updateDashboardView(); // 3. Preenche a moldura com os dados atuais
+                }, 0); // O '0' faz com que execute na primeira oportunidade possível
+
                 break;
             case 'callPanel':
                 content = renderCallPanelScreen();
@@ -113,10 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- GERADORES DE CONTEÚDO HTML (VIEWS) ---
     function renderHomeScreen() {
-        // Garante que arrivalTime existe antes de tentar ordenar
+        // A lógica de ordenação continua a mesma
         const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
             .sort((a, b) => {
-                // MUDANÇA AQUI: Converte para data antes de comparar
                 const timeA = a.arrivalTime.toDate().getTime();
                 const timeB = b.arrivalTime.toDate().getTime();
                 return b.priorityLevel - a.priorityLevel || timeA - timeB;
@@ -157,11 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="preview-calling">
                     <p>Chamando Agora</p>
-                    <span>${state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...'}</span>
+                    <span id="home-currently-calling">${state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...'}</span>
                 </div>
                 <div class="preview-next">
                     <p>Próximos Pacientes</p>
-                    <ul>
+                    <ul id="home-next-patients">
                         ${nextPatients.map(p => `<li>${p.name}</li>`).join('')}
                         ${nextPatients.length === 0 ? '<li>Nenhum paciente na fila</li>' : ''}
                     </ul>
@@ -547,12 +551,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNÇÃO PRINCIPAL: OUVINTE DA FILA DE PACIENTES ---
     function setupFirebaseListeners() {
         patientQueueCollection
-            .orderBy("priorityLevel", "desc") // Pede ao Firebase para já ordenar os dados
-            .orderBy("arrivalTime", "asc")   // (Isso é mais eficiente)
+            .orderBy("priorityLevel", "desc")
+            .orderBy("arrivalTime", "asc")
             .onSnapshot(snapshot => {
                 console.log("Recebida atualização da fila de pacientes!");
 
-                // Atualiza a lista de pacientes no estado local
                 state.patientQueue = [];
                 snapshot.forEach(doc => {
                     if (doc.data() && doc.data().arrivalTime) {
@@ -560,35 +563,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Se o usuário estiver na página do dashboard, chama a atualização cirúrgica.
                 if (state.currentPage === 'dashboard') {
                     updateDashboardView();
-                }
-                // Se estiver na home ou no painel, o outro ouvinte já cuida da atualização.
-                // Se um paciente novo chega, precisamos atualizar a home também.
-                else if (state.currentPage === 'home') {
-                    render();
+                } else if (state.currentPage === 'home') {
+                    // MUDANÇA AQUI: Usa a atualização cirúrgica em vez de render()
+                    updateHomeScreenView();
                 }
             });
     }
-
     // --- OUVINTE PARA A CHAMADA ATUAL ---
     function setupCurrentCallListener() {
         currentCallDoc.onSnapshot(doc => {
             if (doc.exists && doc.data().name) {
                 console.log("Recebida atualização da chamada:", doc.data().name);
-                state.currentlyCalling = doc.data(); // Atualiza o estado local com os dados do Firebase
+                state.currentlyCalling = doc.data();
             } else {
-                // Se o documento não existir ou não tiver nome, reseta
                 state.currentlyCalling = null;
             }
 
-            // Re-renderiza as telas que mostram a chamada atual
-            if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
+            if (state.currentPage === 'home') {
+                // MUDANÇA AQUI: Usa a atualização cirúrgica em vez de render()
+                updateHomeScreenView();
+            } else if (state.currentPage === 'callPanel') {
+                // O painel pode continuar com render(), pois ele ocupa a tela inteira
                 render();
             }
         });
-    } // <-- FIM DA FUNÇÃO setupCurrentCallListener
+    }
 
     function updateDashboardView() {
         const container = document.getElementById('patient-list-container');
@@ -603,6 +604,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reativa os ícones após a atualização
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
+        }
+    }
+
+    function updateHomeScreenView() {
+        const callingEl = document.getElementById('home-currently-calling');
+        const nextPatientsEl = document.getElementById('home-next-patients');
+
+        // Se os elementos não estiverem na tela, não faz nada
+        if (!callingEl || !nextPatientsEl) return;
+
+        console.log("Atualizando a home de forma cirúrgica...");
+
+        // Atualiza o nome do paciente sendo chamado
+        callingEl.textContent = state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...';
+
+        // Atualiza a lista de próximos pacientes
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+            .sort((a, b) => {
+                const timeA = a.arrivalTime.toDate().getTime();
+                const timeB = b.arrivalTime.toDate().getTime();
+                return b.priorityLevel - a.priorityLevel || timeA - timeB;
+            });
+        const nextPatients = sortedQueue.slice(0, 2);
+
+        if (nextPatients.length > 0) {
+            nextPatientsEl.innerHTML = nextPatients.map(p => `<li>${p.name}</li>`).join('');
+        } else {
+            nextPatientsEl.innerHTML = '<li>Nenhum paciente na fila</li>';
         }
     }
 
