@@ -350,8 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return b.priorityLevel - a.priorityLevel || timeA - timeB;
         });
 
-        // MUDANÇA PRINCIPAL AQUI:
-        // Agora, a lista de "próximos" SEMPRE vai filtrar quem está sendo chamado.
         const nextPatients = sortedQueue.filter(p =>
             !state.currentlyCalling || p.id !== state.currentlyCalling.id
         ).slice(0, 3);
@@ -382,12 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <main class="panel-main">
             <div class="calling-now ${callingPatient ? 'active' : ''}">
                 <p>Chamando Agora</p>
-                <span class="patient-name">${callingPatient ? (callingPatient.name || 'Aguardando...') : 'Aguardando chamada...'}</span>
+                <span id="panel-currently-calling" class="patient-name">${callingPatient ? (callingPatient.name || 'Aguardando...') : 'Aguardando chamada...'}</span>
             </div>
             
             <div class="next-patients">
                 <h2>Próximos Pacientes</h2>
-                   <ul>
+                   <ul id="panel-next-patients">
                         ${nextPatients.map(p => {
             const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
             const priorityClass = priorityClassMap[p.priority] || 'low';
@@ -566,8 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (state.currentPage === 'dashboard') {
                     updateDashboardView();
                 } else if (state.currentPage === 'home') {
-                    // MUDANÇA AQUI: Usa a atualização cirúrgica em vez de render()
                     updateHomeScreenView();
+                } else if (state.currentPage === 'callPanel') {
+                    // MUDANÇA AQUI
+                    updateCallPanelView();
                 }
             });
     }
@@ -582,11 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (state.currentPage === 'home') {
-                // MUDANÇA AQUI: Usa a atualização cirúrgica em vez de render()
                 updateHomeScreenView();
             } else if (state.currentPage === 'callPanel') {
-                // O painel pode continuar com render(), pois ele ocupa a tela inteira
-                render();
+                // MUDANÇA AQUI
+                updateCallPanelView();
             }
         });
     }
@@ -632,6 +631,50 @@ document.addEventListener('DOMContentLoaded', () => {
             nextPatientsEl.innerHTML = nextPatients.map(p => `<li>${p.name}</li>`).join('');
         } else {
             nextPatientsEl.innerHTML = '<li>Nenhum paciente na fila</li>';
+        }
+    }
+
+    function updateCallPanelView() {
+        const callingEl = document.getElementById('panel-currently-calling');
+        const nextPatientsEl = document.getElementById('panel-next-patients');
+
+        if (!callingEl || !nextPatientsEl) return;
+
+        console.log("Atualizando o painel de forma cirúrgica...");
+
+        // Atualiza o nome de quem está sendo chamado
+        callingEl.textContent = state.currentlyCalling ? (state.currentlyCalling.name || 'Aguardando...') : 'Aguardando chamada...';
+
+        // Lógica para redesenhar a lista de próximos pacientes
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
+            const timeA = a.arrivalTime.toDate().getTime();
+            const timeB = b.arrivalTime.toDate().getTime();
+            return b.priorityLevel - a.priorityLevel || timeA - timeB;
+        });
+
+        const nextPatients = sortedQueue.filter(p =>
+            !state.currentlyCalling || p.id !== state.currentlyCalling.id
+        ).slice(0, 3);
+
+        if (nextPatients.length > 0) {
+            nextPatientsEl.innerHTML = nextPatients.map(p => {
+                const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+                const priorityClass = priorityClassMap[p.priority] || 'low';
+                const arrivalDateTime = p.arrivalTime.toDate();
+                const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
+                const waitTimeText = `Aguardando há ${timeWaiting} min`;
+                return `
+                <li>
+                    <div class="patient-name-wrapper">
+                        <span>${p.name}</span>
+                        <small class="wait-time-display">${waitTimeText}</small>
+                    </div>
+                    <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+                </li>
+            `;
+            }).join('');
+        } else {
+            nextPatientsEl.innerHTML = '<li class="empty">Nenhum paciente na fila</li>';
         }
     }
 
