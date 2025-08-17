@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const appContainer = document.getElementById('app');
 
+    
+
     // --- BANCO DE DADOS DAS PERGUNTAS DE TRIAGEM ---
     const triageQuestions = {
         'start': { text: 'Qual o motivo principal da sua consulta hoje?', icon: 'stethoscope', options: [ { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' }, { text: 'Consulta de retorno', value: 3, next: 'final' }, { text: 'Renovação de receita', value: 1, next: 'final' }, { text: 'Exames de rotina', value: 1, next: 'final' } ] },
@@ -142,37 +144,129 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${renderHeader('Painel de Atendimento')}<main id="dashboard-content" class="page-content"><div class="dashboard-grid"><div class="patient-card skeleton"></div><div class="patient-card skeleton"></div><div class="patient-card skeleton"></div></div></main>`;
     }
 
-    function renderDashboardContent() {
-        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
-            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
+function renderDashboardContent() {
+    // Lógica de ordenação CORRETA da branch 'main'
+    const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+        .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
 
-        if (sortedQueue.length === 0) {
-            return `<div class="content-card fade-in"><i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2></div>`;
-        }
-
-        const patientCards = sortedQueue.map((p, i) => {
-            const arrivalDateTime = p.arrivalTime.toDate();
-            const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
-            const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase();
-            
-            return `<div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms"><div class="patient-info"><div class="name">${p.name}</div><div class="details"><i data-lucide="clock" style="width:16px;"></i> Aguardando há ${timeWaiting} min</div></div><div class="patient-actions"><span class="priority-tag tag-${priorityClass}">${p.priority}</span><button data-action="call-patient" data-id="${p.id}" class="btn"><i data-lucide="megaphone"></i> Chamar</button></div></div>`;
-        }).join('');
-
-        return `<div class="dashboard-grid">${patientCards}</div>`;
+    if (sortedQueue.length === 0) {
+        return `
+        <div class="content-card fade-in">
+            <i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2>
+        </div>
+        `;
     }
+
+    const patientCards = sortedQueue.map((p, i) => {
+        // Lógica de cálculo de tempo CORRETA da branch 'main'
+        const arrivalDateTime = p.arrivalTime.toDate();
+        const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
+        
+        // Mapa de classes de prioridade da branch 'rafael-dev' (mais claro)
+        const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+        const priorityClass = priorityClassMap[p.priority] || 'low';
+        
+        // Lógica de dividir o nome da branch 'rafael-dev'
+        const nameParts = p.name.split(' ');
+        const firstName = nameParts.shift();
+        const lastName = nameParts.join(' ');
+
+        // HTML combinado com o visual da 'rafael-dev' e os dados corretos
+        return `
+        <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
+            <div class="patient-info">
+                <div class="name priority-${priorityClass}">
+                    <span>${firstName}</span>
+                    <span>${lastName}</span>
+                </div>
+                <div class="details">
+                    <i data-lucide="clock"></i> Aguardando há ${timeWaiting} min
+                </div>
+            </div>
+            <div class="patient-actions">
+                <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+                <button data-action="call-patient" data-id="${p.id}" class="btn btn-call">
+                    <i data-lucide="megaphone"></i> Chamar
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+      return `<div class="dashboard-grid">${patientCards}</div>`;
+  }
 
     function renderCallPanelScreen() {
-        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
-            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
-        const nextPatients = sortedQueue.filter(p => !state.currentlyCalling || p.id !== state.currentlyCalling.id).slice(0, 3);
-        const callingPatient = state.currentlyCalling;
-        const now = new Date();
-        const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
-        const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
-        const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    // Lógica de ordenação CORRETA da branch 'main'
+    const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+        .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime.toMillis() - b.arrivalTime.toMillis());
+        
+    const nextPatients = sortedQueue.filter(p => 
+        !state.currentlyCalling || p.id !== state.currentlyCalling.id
+    ).slice(0, 3);
+    const callingPatient = state.currentlyCalling;
+    const now = new Date();
+    
+    const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+    const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+    const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
 
-        return `<div class="call-panel-page"><header class="panel-header"><div><h1>Painel de Atendimento</h1><p>UBS Atendimentos</p></div><div class="clock"><span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span><span id="clock-date"><span class="clock-weekday">${capitalizedWeekday}</span><span class="clock-day-month">${dayAndMonth}</span></span></div></header><main class="panel-main"><div class="calling-now ${callingPatient ? 'active' : ''}"><p>Chamando Agora</p><span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span></div><div class="next-patients"><h2>Próximos Pacientes</h2><ul>${nextPatients.map(p => { const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase(); return `<li><span>${p.name}</span><span class="priority-tag tag-${priorityClass}">${p.priority}</span></li>`; }).join('')}${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}</ul></div></main><button data-action="go-home" class="close-panel-btn"><i data-lucide="x"></i></button></div>`;
-    }
+    return `
+    <div class="call-panel-page">
+        <header class="panel-header">
+            <div>
+                <h1>Painel de Atendimento</h1>
+                <p>UBS Atendimentos</p>
+            </div>
+            <div class="clock">
+                <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
+                <span id="clock-date">
+                    <span class="clock-weekday">${capitalizedWeekday}</span>
+                    <span class="clock-day-month">${dayAndMonth}</span>
+                </span>
+            </div>
+        </header>
+        
+        <main class="panel-main">
+            <div class="calling-now ${callingPatient ? 'active' : ''}">
+                <p>Chamando Agora</p>
+                <span class="patient-name">${callingPatient ? callingPatient.name : 'Aguardando chamada...'}</span>
+            </div>
+            
+            <div class="next-patients">
+                <h2>Próximos Pacientes</h2>
+                    <ul>
+                        ${nextPatients.map(p => {
+                            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+                            const priorityClass = priorityClassMap[p.priority] || 'low';
+                            
+                            // Lógica de cálculo de tempo CORRETA da branch 'main'
+                            const arrivalDateTime = p.arrivalTime.toDate();
+                            const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
+                            const waitTimeText = `Aguardando há ${timeWaiting} min`;
+
+                            // Estrutura HTML da branch 'rafael-dev'
+                            return `
+                                <li>
+                                    <div class="patient-name-wrapper">
+                                        <span>${p.name}</span>
+                                        <small class="wait-time-display">${waitTimeText}</small>
+                                    </div>
+                                    <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                        ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
+                    </ul>
+            </div>
+        </main>
+        
+        <button data-action="go-home" class="close-panel-btn">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+    `;
+}
 
     function updateClock() {
         const timeEl = document.getElementById('clock-time');
