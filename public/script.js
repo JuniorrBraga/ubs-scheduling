@@ -323,8 +323,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const patientCards = sortedQueue.map((p, i) => {
             const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-            const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase();
             
+            // --- CORREÇÃO AQUI ---
+            // Mapeia a prioridade em português para a classe em inglês do CSS
+            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+            const priorityClass = priorityClassMap[p.priority] || 'low';
+            // --- FIM DA CORREÇÃO ---
+
             return `
             <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
                 <div class="patient-info">
@@ -356,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const callingPatient = state.currentlyCalling;
         const now = new Date();
         
-        // **MUDANÇA AQUI**: Separamos a data em duas partes
         const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
         const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
         const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
@@ -370,8 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="clock">
                     <span id="clock-time">${now.toLocaleTimeString('pt-BR')}</span>
-                    
-                    <!-- **MUDANÇA AQUI**: A data agora tem uma estrutura com spans -->
                     <span id="clock-date">
                         <span class="clock-weekday">${capitalizedWeekday}</span>
                         <span class="clock-day-month">${dayAndMonth}</span>
@@ -389,7 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2>Próximos Pacientes</h2>
                     <ul>
                         ${nextPatients.map(p => {
-                            const priorityClass = p.priority === 'Média' ? 'medium' : p.priority.toLowerCase();
+                            // --- CORREÇÃO AQUI ---
+                            // Mapeia a prioridade em português para a classe em inglês do CSS
+                            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+                            const priorityClass = priorityClassMap[p.priority] || 'low';
+                            // --- FIM DA CORREÇÃO ---
                             return `<li><span>${p.name}</span><span class="priority-tag tag-${priorityClass}">${p.priority}</span></li>`;
                         }).join('')}
                         ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
