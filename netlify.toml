@@ -1,4 +1,12 @@
+# Arquivo: netlify.toml
+
+[build]
+  # Pasta que contém os arquivos do seu site (frontend)
+  publish = "public"
+  # Pasta onde estão as suas funções de backend
+  functions = "netlify/functions"
+
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
