@@ -1,30 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const db = firebase.firestore();
+    const patientQueueCollection = db.collection('patientQueue');
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const state = {
         currentPage: 'home', // 'home', 'triage', 'result', 'dashboard', 'callPanel'
-        patientQueue: [
-            { 
-                id: 1, 
-                name: 'Carlos Pereira', 
-                priority: 'Média', 
-                priorityLevel: 2, 
-                arrivalTime: new Date(Date.now() - 30 * 60000) 
-            },
-            { 
-                id: 2, 
-                name: 'Ana Souza', 
-                priority: 'Baixa', 
-                priorityLevel: 1, 
-                arrivalTime: new Date(Date.now() - 45 * 60000) 
-            },
-            { 
-                id: 3, 
-                name: 'Juliana Costa', 
-                priority: 'Alta', 
-                priorityLevel: 3, 
-                arrivalTime: new Date(Date.now() - 10 * 60000) 
-            },
-        ],
+        patientQueue: [],
         currentTriage: {
             answers: {},
             score: 0,
@@ -36,56 +17,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const appContainer = document.getElementById('app');
 
-    
+
 
     // --- BANCO DE DADOS DAS PERGUNTAS DE TRIAGEM ---
     const triageQuestions = {
-    'start': {
-        text: 'Qual o motivo principal da sua consulta hoje?',
-        icon: 'stethoscope',
-        options: [
-            { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' },
-            { text: 'Consulta de retorno', value: 3, next: 'final' },
-            { text: 'Renovação de receita', value: 1, next: 'final' },
-            { text: 'Exames de rotina', value: 1, next: 'final' }
-        ]
-    },
-    'symptoms': {
-        text: 'Você apresenta algum destes sintomas graves?',
-        icon: 'alert-triangle',
-        options: [
-            { text: 'Dor no peito ou falta de ar', value: 10, next: 'fever' },
-            { text: 'Febre alta (acima de 38.5°C)', value: 5, next: 'pain' },
-            { text: 'Sangramento incomum', value: 8, next: 'pain' },
-            { text: 'Nenhum dos anteriores', value: 0, next: 'pain' }
-        ]
-    },
-    'fever': {
-        text: 'Você tem febre?',
-        icon: 'thermometer',
-        options: [
-            { text: 'Sim', value: 3, next: 'pain' },
-            { text: 'Não', value: 0, next: 'pain' }
-        ]
-    },
-    'pain': {
-        text: 'Em uma escala de 0 a 10, qual o seu nível de dor?',
-        icon: 'frown',
-        options: [
-            { text: 'Leve (1-3)', value: 1, next: 'chronic' },
-            { text: 'Moderada (4-6)', value: 3, next: 'chronic' },
-            { text: 'Intensa (7-10)', value: 6, next: 'chronic' }
-        ]
-    },
-    'chronic': {
-        text: 'Você possui alguma condição crônica?',
-        icon: 'heart-pulse',
-        options: [
-            { text: 'Sim', value: 2, next: 'final' },
-            { text: 'Não', value: 0, next: 'final' }
-        ]
-    }
-};
+        'start': {
+            text: 'Qual o motivo principal da sua consulta hoje?',
+            icon: 'stethoscope',
+            options: [
+                { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' },
+                { text: 'Consulta de retorno', value: 3, next: 'final' },
+                { text: 'Renovação de receita', value: 1, next: 'final' },
+                { text: 'Exames de rotina', value: 1, next: 'final' }
+            ]
+        },
+        'symptoms': {
+            text: 'Você apresenta algum destes sintomas graves?',
+            icon: 'alert-triangle',
+            options: [
+                { text: 'Dor no peito ou falta de ar', value: 10, next: 'fever' },
+                { text: 'Febre alta (acima de 38.5°C)', value: 5, next: 'pain' },
+                { text: 'Sangramento incomum', value: 8, next: 'pain' },
+                { text: 'Nenhum dos anteriores', value: 0, next: 'pain' }
+            ]
+        },
+        'fever': {
+            text: 'Você tem febre?',
+            icon: 'thermometer',
+            options: [
+                { text: 'Sim', value: 3, next: 'pain' },
+                { text: 'Não', value: 0, next: 'pain' }
+            ]
+        },
+        'pain': {
+            text: 'Em uma escala de 0 a 10, qual o seu nível de dor?',
+            icon: 'frown',
+            options: [
+                { text: 'Leve (1-3)', value: 1, next: 'chronic' },
+                { text: 'Moderada (4-6)', value: 3, next: 'chronic' },
+                { text: 'Intensa (7-10)', value: 6, next: 'chronic' }
+            ]
+        },
+        'chronic': {
+            text: 'Você possui alguma condição crônica?',
+            icon: 'heart-pulse',
+            options: [
+                { text: 'Sim', value: 2, next: 'final' },
+                { text: 'Não', value: 0, next: 'final' }
+            ]
+        }
+    };
 
     // --- LÓGICA DE RENDERIZAÇÃO ---
     function render() {
@@ -112,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = renderDashboardScreen();
                 setTimeout(() => {
                     const dashboardContent = document.getElementById('dashboard-content');
-                    if(dashboardContent) {
+                    if (dashboardContent) {
                         dashboardContent.innerHTML = renderDashboardContent();
                         if (typeof lucide !== 'undefined') {
                             lucide.createIcons();
@@ -130,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         appContainer.innerHTML = content;
-        
+
         // Inicializa os ícones Lucide se estiver disponível
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
@@ -139,61 +120,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- GERADORES DE CONTEÚDO HTML (VIEWS) ---
     function renderHomeScreen() {
-        const nextPatients = [...state.patientQueue]
-            .sort((a, b) => b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime)
-            .slice(0, 2);
+        // Garante que arrivalTime existe antes de tentar ordenar
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime)
+            .sort((a, b) => {
+                // MUDANÇA AQUI: Converte para data antes de comparar
+                const timeA = a.arrivalTime.toDate().getTime();
+                const timeB = b.arrivalTime.toDate().getTime();
+                return b.priorityLevel - a.priorityLevel || timeA - timeB;
+            });
+        const nextPatients = sortedQueue.slice(0, 2);
 
         return `
-        <header class="main-header fade-in">
-            <div class="logo">
-                <i data-lucide="heart-pulse"></i> <span>UBS Atendimentos</span>
+    <header class="main-header fade-in">
+        <div class="logo">
+            <i data-lucide="heart-pulse"></i> <span>UBS Atendimentos</span>
+        </div>
+        <nav>
+            <button data-action="view-dashboard" class="btn">
+                <i data-lucide="shield"></i>
+                <span>Área da Equipe</span>
+            </button>
+        </nav>
+    </header>
+    
+    <main class="health-portal">
+        <div class="portal-actions slide-up">
+            <h2>Saiba tudo que a UBS oferece para cuidar da sua saúde</h2>
+            <div class="actions-grid">
+                <div data-action="start-triage" class="action-card">
+                    <i data-lucide="clipboard-list"></i> <span>Pronto Atendimento<br></span>
+                </div>
+                <div data-action="start-chat" class="action-card">
+                    <i data-lucide="message-square"></i> <span>Falar com Assistente Virtual</span>
+                </div>
             </div>
-            <nav>
-                <button data-action="view-dashboard" class="btn">
-                    <i data-lucide="shield"></i>
-                    <span>Área da Equipe</span>
-                </button>
-            </nav>
-        </header>
+        </div>
         
-        <main class="health-portal">
-            <div class="portal-actions slide-up">
-                <h2>Saiba tudo que a UBS oferece para cuidar da sua saúde</h2>
-                <div class="actions-grid">
-                    <div data-action="start-triage" class="action-card">
-                        <i data-lucide="clipboard-list"></i> <span>Pronto Atendimento<br></span>
-                    </div>
-                    <div data-action="start-chat" class="action-card">
-                        <i data-lucide="message-square"></i> <span>Falar com Assistente Virtual</span>
-                    </div>
+        <div class="feature-card panel-preview-card fade-in" style="animation-delay: 0.2s;">
+            <div class="panel-preview">
+                <div class="preview-header">
+                    <h4>Painel de Atendimento</h4>
+                    <span class="live-dot"></span>
+                </div>
+                <div class="preview-calling">
+                    <p>Chamando Agora</p>
+                    <span>${state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...'}</span>
+                </div>
+                <div class="preview-next">
+                    <p>Próximos Pacientes</p>
+                    <ul>
+                        ${nextPatients.map(p => `<li>${p.name}</li>`).join('')}
+                        ${nextPatients.length === 0 ? '<li>Nenhum paciente na fila</li>' : ''}
+                    </ul>
                 </div>
             </div>
-            
-            <div class="feature-card panel-preview-card fade-in" style="animation-delay: 0.2s;">
-                <div class="panel-preview">
-                    <div class="preview-header">
-                        <h4>Painel de Atendimento</h4>
-                        <span class="live-dot"></span>
-                    </div>
-                    <div class="preview-calling">
-                        <p>Chamando Agora</p>
-                        <span>${state.currentlyCalling ? state.currentlyCalling.name : 'Aguardando...'}</span>
-                    </div>
-                    <div class="preview-next">
-                        <p>Próximos Pacientes</p>
-                        <ul>
-                            ${nextPatients.map(p => `<li>${p.name}</li>`).join('')}
-                            ${nextPatients.length === 0 ? '<li>Nenhum paciente na fila</li>' : ''}
-                        </ul>
-                    </div>
-                </div>
-                <div class="feature-card-content">
-                    <h3>Acompanhe a Fila em Tempo Real</h3>
-                    <button data-action="view-call-panel" class="btn">Veja o Painel</button>
-                </div>
+            <div class="feature-card-content">
+                <h3>Acompanhe a Fila em Tempo Real</h3>
+                <button data-action="view-call-panel" class="btn">Veja o Painel</button>
             </div>
-        </main>
-        `;
+        </div>
+    </main>
+    `;
     }
 
     function renderHeader(title) {
@@ -267,15 +254,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const priorityClass = priorityClassMap[priority];
 
-        if (!state.patientQueue.some(p => p.id === state.currentTriage.id)) {
-            state.patientQueue.push({
-                id: state.currentTriage.id,
-                name: state.currentTriage.patientName,
-                priority,
-                priorityLevel,
-                arrivalTime: new Date()
-            });
-        }
+        const newPatient = {
+            name: state.currentTriage.patientName,
+            priority: priority,
+            priorityLevel: priorityLevel,
+            arrivalTime: firebase.firestore.FieldValue.serverTimestamp() // Usa o horário do servidor
+        };
+        patientQueueCollection.add(newPatient)
+            .then(() => console.log("Paciente adicionado ao Firestore!"))
+            .catch(e => console.error("Erro ao adicionar paciente: ", e));
 
         return `
         ${renderHeader('Resultado da Triagem')}
@@ -310,31 +297,35 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-   function renderDashboardContent() {
-    const sortedQueue = [...state.patientQueue].sort((a, b) => 
-        b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
-    );
+    function renderDashboardContent() {
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
+            // MUDANÇA AQUI
+            const timeA = a.arrivalTime.toDate().getTime();
+            const timeB = b.arrivalTime.toDate().getTime();
+            return b.priorityLevel - a.priorityLevel || timeA - timeB;
+        });
 
-    if (sortedQueue.length === 0) {
-        return `
+        if (sortedQueue.length === 0) {
+            return `
         <div class="content-card fade-in">
             <i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2>
         </div>
         `;
-    }
+        }
 
-    const patientCards = sortedQueue.map((p, i) => {
-        const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-        
-        const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-        const priorityClass = priorityClassMap[p.priority] || 'low';
-        
-        // Divide o nome para estilização
-        const nameParts = p.name.split(' ');
-        const firstName = nameParts.shift();
-        const lastName = nameParts.join(' ');
+        const patientCards = sortedQueue.map((p, i) => {
+            // MUDANÇA AQUI: Converte para data antes de calcular o tempo
+            const arrivalDateTime = p.arrivalTime.toDate();
+            const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
 
-        return `
+            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+            const priorityClass = priorityClassMap[p.priority] || 'low';
+
+            const nameParts = p.name.split(' ');
+            const firstName = nameParts.shift();
+            const lastName = nameParts.join(' ');
+
+            return `
         <div class="patient-card priority-${priorityClass} fade-in" style="animation-delay: ${i * 50}ms">
             <div class="patient-info">
                 <div class="name priority-${priorityClass}">
@@ -342,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span>${lastName}</span>
                 </div>
                 <div class="details">
-                    <i data-lucide="clock"></i> Tempo estimado ${timeWaiting} min
+                    <i data-lucide="clock"></i> Aguardando há ${timeWaiting} min
                 </div>
             </div>
             <div class="patient-actions">
@@ -353,26 +344,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
         `;
-    }).join('');
+        }).join('');
 
-    return `<div class="dashboard-grid">${patientCards}</div>`;
-}
+        return `<div class="dashboard-grid">${patientCards}</div>`;
+    }
 
     function renderCallPanelScreen() {
-    const sortedQueue = [...state.patientQueue].sort((a, b) => 
-        b.priorityLevel - a.priorityLevel || a.arrivalTime - b.arrivalTime
-    );
-    const nextPatients = sortedQueue.filter(p => 
-        !state.currentlyCalling || p.id !== state.currentlyCalling.id
-    ).slice(0, 3);
-    const callingPatient = state.currentlyCalling;
-    const now = new Date();
-    
-    const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
-    const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
-    const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+        const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
+            // MUDANÇA AQUI
+            const timeA = a.arrivalTime.toDate().getTime();
+            const timeB = b.arrivalTime.toDate().getTime();
+            return b.priorityLevel - a.priorityLevel || timeA - timeB;
+        });
+        const nextPatients = sortedQueue.filter(p =>
+            !state.currentlyCalling || p.id !== state.currentlyCalling.id
+        ).slice(0, 3);
+        const callingPatient = state.currentlyCalling;
+        const now = new Date();
 
-    return `
+        const weekday = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+        const dayAndMonth = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+        const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+        return `
     <div class="call-panel-page">
         <header class="panel-header">
             <div>
@@ -396,18 +390,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <div class="next-patients">
                 <h2>Próximos Pacientes</h2>
-                 <ul>
+                   <ul>
                         ${nextPatients.map(p => {
-                            // Lógica para definir a classe da cor (já está correto no seu código)
-                            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-                            const priorityClass = priorityClassMap[p.priority] || 'low';
-                            
-                            // Lógica para calcular o tempo de espera (já está correto no seu código)
-                            const timeWaiting = Math.round((new Date() - new Date(p.arrivalTime)) / 60000);
-                            const waitTimeText = `Tempo estimado ${timeWaiting} min`;
+            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
+            const priorityClass = priorityClassMap[p.priority] || 'low';
 
-                            // Este é o return final que monta o HTML na tela
-                            return `
+            // MUDANÇA AQUI
+            const arrivalDateTime = p.arrivalTime.toDate();
+            const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
+            const waitTimeText = `Aguardando há ${timeWaiting} min`;
+
+            return `
                                 <li>
                                     <div class="patient-name-wrapper">
                                         <span>${p.name}</span>
@@ -416,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
                                 </li>
                             `;
-                        }).join('')}
+        }).join('')}
                         ${nextPatients.length === 0 ? '<li class="empty">Nenhum paciente na fila</li>' : ''}
                     </ul>
             </div>
@@ -427,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
     </div>
     `;
-}
+    }
 
     // **MUDANÇA AQUI**: A função agora atualiza a data também
     function updateClock() {
@@ -537,9 +530,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (action === 'call-patient') {
-            const patientId = parseInt(target.dataset.id, 10);
-            state.currentlyCalling = state.patientQueue.find(p => p.id === patientId);
-            state.patientQueue = state.patientQueue.filter(p => p.id !== patientId);
+            const patientId = target.dataset.id; // O ID do Firestore é uma string
+            const patientData = state.patientQueue.find(p => p.id === patientId);
+            state.currentlyCalling = patientData;
+
+            if (patientId) {
+                db.collection('patientQueue').doc(patientId).delete()
+                    .then(() => console.log("Paciente removido do Firestore!"))
+                    .catch(e => console.error("Erro ao remover paciente: ", e));
+            }
 
             const dashboardContent = document.getElementById('dashboard-content');
             if (dashboardContent) {
@@ -555,7 +554,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 15000); // Paciente fica "em chamado" por 15s
         }
     });
+    // --- FUNÇÃO PRINCIPAL: OUVINTE DO FIREBASE ---
+    function setupFirebaseListeners() {
+        patientQueueCollection.onSnapshot(snapshot => {
+            console.log("Recebida atualização da fila de pacientes!");
+            const newPatientQueue = [];
+            snapshot.forEach(doc => {
+                if (doc.data() && doc.data().arrivalTime) {
+                    newPatientQueue.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                }
+            });
 
+            state.patientQueue = newPatientQueue;
+
+            // Re-renderiza a tela atual com os novos dados
+            if (state.currentPage === 'dashboard') {
+                const dashboardContent = document.getElementById('dashboard-content');
+                if (dashboardContent) {
+                    dashboardContent.innerHTML = renderDashboardContent();
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            } else if (state.currentPage === 'home' || state.currentPage === 'callPanel') {
+                render();
+            }
+        });
+    }
     // --- INICIALIZAÇÃO ---
+    setupFirebaseListeners();
     render();
 });

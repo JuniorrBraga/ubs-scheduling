@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UBS Atendimentos | Cuidando da sua Saúde</title>
-    
+
     <!-- Pré-conexão para otimizar o carregamento das fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <!-- Fonte Principal (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Nossas Folhas de Estilo -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="chat.css">
 </head>
+
 <body>
-    <!-- Ponto de entrada da aplicação. O conteúdo será injetado aqui. -->
     <div id="app"></div>
 
-    <!-- Ícones Lucide - Carregado do CDN -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
-    <!-- Nossos Scripts -->
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        // O objeto de configuração que você pegou do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMkZ9ZAlAwBxSxtfk6PJDJPZi1ao3Ktfw",
+            authDomain: "ubs-agendamentos.firebaseapp.com",
+            projectId: "ubs-agendamentos",
+            storageBucket: "ubs-agendamentos.firebasestorage.app",
+            messagingSenderId: "804113458254",
+            appId: "1:804113458254:web:f9756966a824dd6c928f1f",
+            measurementId: "G-BLSKV7Y3B4"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
     <script src="script.js"></script>
     <script src="chat.js"></script>
 </body>
+
 </html>

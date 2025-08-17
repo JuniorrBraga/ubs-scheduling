@@ -50,23 +50,23 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 app.post('/chat', async (req, res) => {
 
-    try {
+    try {
 
-        const { question } = req.body;
-
-
-
-        if (!question) {
-
-            return res.status(400).json({ error: 'Nenhuma pergunta foi fornecida.' });
-
-        }
+        const { question } = req.body;
 
 
 
-        // Monta o prompt para a IA
+        if (!question) {
 
-        const prompt = `
+            return res.status(400).json({ error: 'Nenhuma pergunta foi fornecida.' });
+
+        }
+
+
+
+        // Monta o prompt para a IA
+
+        const prompt = `
 
             Você é um assistente virtual de uma Unidade Básica de Saúde (UBS).
 
@@ -100,29 +100,29 @@ app.post('/chat', async (req, res) => {
 
 
 
-        // Chama a API do Gemini
+        // Chama a API do Gemini
 
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent(prompt);
 
-        const response = await result.response;
+        const response = await result.response;
 
-        const text = response.text();
-
-       
-
-        // Envia a resposta da IA de volta para o frontend
-
-        res.json({ answer: text });
+        const text = response.text();
 
 
 
-    } catch (error) {
+        // Envia a resposta da IA de volta para o frontend
 
-        console.error("Erro ao processar a requisição do chat:", error);
+        res.json({ answer: text });
 
-        res.status(500).json({ error: 'Ocorreu um erro ao comunicar com o assistente virtual.' });
 
-    }
+
+    } catch (error) {
+
+        console.error("Erro ao processar a requisição do chat:", error);
+
+        res.status(500).json({ error: 'Ocorreu um erro ao comunicar com o assistente virtual.' });
+
+    }
 
 });
 
@@ -130,6 +130,6 @@ app.post('/chat', async (req, res) => {
 
 app.listen(port, () => {
 
-    console.log(`🤖 Servidor do chat rodando em http://localhost:${port}`);
+    console.log(`🤖 Servidor do chat rodando em http://localhost:${port}`);
 
 });
