@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
             patientName: ''
         },
         currentlyCalling: null, // Armazena o paciente sendo chamado
-        activeInterval: null // Para controlar o relógio do painel
+        activeInterval: null, // Para controlar o relógio do painel
+        dashboardUpdateTimeout: null
     };
 
     const appContainer = document.getElementById('app');
@@ -93,10 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'dashboard':
                 content = renderDashboardScreen(); // 1. Renderiza a moldura
 
-                // 2. USA UM setTimeout PARA GARANTIR QUE A MOLDURA EXISTA ANTES DE PREENCHÊ-LA
-                setTimeout(() => {
-                    updateDashboardView(); // 3. Preenche a moldura com os dados atuais
-                }, 0); // O '0' faz com que execute na primeira oportunidade possível
+                // Limpa qualquer agendamento de atualização anterior para evitar bugs de navegação
+                if (state.dashboardUpdateTimeout) {
+                    clearTimeout(state.dashboardUpdateTimeout);
+                }
+
+                // Agenda a primeira atualização da tela
+                state.dashboardUpdateTimeout = setTimeout(() => {
+                    updateDashboardView();
+                    state.dashboardUpdateTimeout = null; // Limpa o ID após a execução
+                }, 0);
 
                 break;
             case 'callPanel':
@@ -581,11 +588,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.currentlyCalling = null;
             }
 
+            // AGORA, TODAS AS TELAS USAM ATUALIZAÇÕES CIRÚRGICAS
             if (state.currentPage === 'home') {
                 updateHomeScreenView();
             } else if (state.currentPage === 'callPanel') {
-                // MUDANÇA AQUI
-                updateCallPanelView();
+                updateCallPanelView(); // <-- MUDANÇA AQUI
             }
         });
     }
