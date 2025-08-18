@@ -474,22 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
             render();
         }
 
+        // VERSÃO CORRIGIDA (mais limpa e eficiente)
         if (action === 'start-chat') {
-            // Força a abertura do chat
-            setTimeout(() => {
-                const chatWindow = document.querySelector('.chat-window');
-                if (chatWindow) {
-                    chatWindow.classList.add('open');
-                    // Adiciona mensagem de boas-vindas se necessário
-                    const messagesContainer = document.getElementById('chat-messages');
-                    if (messagesContainer && messagesContainer.children.length === 0) {
-                        const messageElement = document.createElement('div');
-                        messageElement.classList.add('message', 'ai-message');
-                        messageElement.textContent = "Olá! Sou o assistente virtual da UBS. Como posso ajudar a tirar suas dúvidas sobre nossos serviços ou sobre saúde?";
-                        messagesContainer.appendChild(messageElement);
-                    }
-                }
-            }, 100);
+            // Apenas chama a função global que o chat.js já criou
+            if (window.openChat) {
+                window.openChat();
+            }
         }
 
         if (action === 'view-call-panel') {
