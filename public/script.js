@@ -14,7 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         currentlyCalling: null, // Armazena o paciente sendo chamado
         activeInterval: null, // Para controlar o relógio do painel
-        dashboardUpdateTimeout: null
+        dashboardUpdateTimeout: null,
+        isStaffAuthenticated: false
+    };
+
+    const staffCredentials = {
+        'rj': 'nonde',
     };
 
     const appContainer = document.getElementById('app');
@@ -189,6 +194,27 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </main>
     `;
+    }
+
+    // Adicione esta função junto com as outras de renderização
+    function renderLoginModal() {
+        const modalHtml = `
+    <div class="login-overlay" data-action="close-modal">
+        <div class="login-modal fade-in">
+            <div class="modal-header">
+                <h2>Acesso Restrito</h2>
+                <button class="close-btn" data-action="close-modal">&times;</button>
+            </div>
+            <p>Por favor, insira suas credenciais para acessar o painel da equipe.</p>
+            <div id="login-error-message" class="error-message" style="display: none;"></div>
+            <input type="text" id="staff-username" placeholder="Usuário" class="input-field">
+            <input type="password" id="staff-password" placeholder="Senha" class="input-field">
+            <button class="btn btn-large" data-action="submit-login">Entrar</button>
+        </div>
+    </div>
+    `;
+        // Adiciona o modal no final do body para ficar por cima de tudo
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
     function renderHeader(title) {
@@ -517,8 +543,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (action === 'view-dashboard') {
-            state.currentPage = 'dashboard';
-            render();
+            if (state.isStaffAuthenticated) {
+                // Se já estiver logado, vai direto para o painel
+                state.currentPage = 'dashboard';
+                render();
+            } else {
+                // Se não estiver logado, mostra a janela de login
+                renderLoginModal();
+            }
         }
 
         if (action === 'go-home') {
@@ -595,6 +627,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     currentCallDoc.set({ name: 'Aguardando chamada...' });
                 }, 15000);
+            }
+        }
+
+        if (action === 'submit-login') {
+            const username = document.getElementById('staff-username').value;
+            const password = document.getElementById('staff-password').value;
+            const errorMessageDiv = document.getElementById('login-error-message');
+
+            // Verifica se o usuário existe e se a senha está correta
+            if (staffCredentials[username] && staffCredentials[username] === password) {
+                state.isStaffAuthenticated = true;
+                document.querySelector('.login-overlay').remove(); // Remove o modal da tela
+                state.currentPage = 'dashboard';
+                render();
+            } else {
+                errorMessageDiv.textContent = 'Usuário ou senha inválidos.';
+                errorMessageDiv.style.display = 'block';
+            }
+        }
+
+        if (action === 'close-modal') {
+            const modal = document.querySelector('.login-overlay');
+            // Garante que só vai fechar se clicar no fundo ou no botão 'x'
+            if (modal && (event.target.classList.contains('login-overlay') || event.target.classList.contains('close-btn'))) {
+                modal.remove();
             }
         }
     });

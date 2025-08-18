@@ -6,8 +6,10 @@
     --primary-blue-dark: #004a75;
     --accent-cyan: #00A99D;
     --background-light: #f8f9fa;
-    --panel-dark-bg: #111827; /* Um preto mais suave */
-    --panel-card-bg: #1f2937; /* Um cinza escuro para os cards */
+    --panel-dark-bg: #111827;
+    /* Um preto mais suave */
+    --panel-card-bg: #1f2937;
+    /* Um cinza escuro para os cards */
     --text-dark: #212529;
     --text-light: #6c757d;
     --white: #ffffff;
@@ -47,23 +49,27 @@ body {
     color: var(--white);
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 50px; /* Deixa o botão em formato de "pílula" */
+    border-radius: 50px;
+    /* Deixa o botão em formato de "pílula" */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 90, 141, 0.11), 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 6px rgba(0, 90, 141, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6rem; /* Aumenta o espaço para o ícone */
+    gap: 0.6rem;
+    /* Aumenta o espaço para o ícone */
     background-size: 200% auto;
-    text-decoration: none; /* Remove sublinhado caso seja usado em tag <a> */
+    text-decoration: none;
+    /* Remove sublinhado caso seja usado em tag <a> */
     font-size: 1rem;
 }
 
 .btn:hover {
-    background-position: right center; /* Anima o gradiente */
-    box-shadow: 0 7px 14px rgba(0, 90, 141, 0.1), 0 3px 6px rgba(0,0,0,0.08);
+    background-position: right center;
+    /* Anima o gradiente */
+    box-shadow: 0 7px 14px rgba(0, 90, 141, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
 
@@ -117,7 +123,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Centraliza o conteúdo verticalmente */
+    justify-content: center;
+    /* Centraliza o conteúdo verticalmente */
     padding: 3rem 1.5rem;
     width: 100%;
     box-sizing: border-box;
@@ -194,7 +201,7 @@ body {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     min-height: 480px;
     display: flex;
     flex-direction: column;
@@ -405,55 +412,132 @@ body {
 /* ============================================= */
 
 /* Usado na tela de Resultado (cor do ícone e do texto do título) */
-.priority-red    { color: #d9534f; } /* Vermelho */
-.priority-orange { color: #f0ad4e; } /* Laranja */
-.priority-yellow { color: #cba808; } /* Amarelo (tom mais escuro para contraste) */
-.priority-green  { color: #5cb85c; } /* Verde */
-.priority-blue   { color: #5bc0de; } /* Azul */
+.priority-red {
+    color: #d9534f;
+}
+
+/* Vermelho */
+.priority-orange {
+    color: #f0ad4e;
+}
+
+/* Laranja */
+.priority-yellow {
+    color: #cba808;
+}
+
+/* Amarelo (tom mais escuro para contraste) */
+.priority-green {
+    color: #5cb85c;
+}
+
+/* Verde */
+.priority-blue {
+    color: #5bc0de;
+}
+
+/* Azul */
 
 /* Usado na tela de Resultado (cor do fundo do círculo do ícone) */
-.bg-red    { background-color: #fde8e8; }
-.bg-orange { background-color: #fff6e5; }
-.bg-yellow { background-color: #fffde5; }
-.bg-green  { background-color: #e8f5e9; }
-.bg-blue   { background-color: #e7f8fc; }
+.bg-red {
+    background-color: #fde8e8;
+}
+
+.bg-orange {
+    background-color: #fff6e5;
+}
+
+.bg-yellow {
+    background-color: #fffde5;
+}
+
+.bg-green {
+    background-color: #e8f5e9;
+}
+
+.bg-blue {
+    background-color: #e7f8fc;
+}
 
 /* Usado no Painel (Dashboard) para as tags coloridas */
-.tag-red    { background-color: #d9534f; color: white; }
-.tag-orange { background-color: #f0ad4e; color: white; }
-.tag-yellow { background-color: #f0de4e; color: #333; } /* Texto escuro para legibilidade */
-.tag-green  { background-color: #5cb85c; color: white; }
-.tag-blue   { background-color: #5bc0de; color: white; }
+.tag-red {
+    background-color: #d9534f;
+    color: white;
+}
+
+.tag-orange {
+    background-color: #f0ad4e;
+    color: white;
+}
+
+.tag-yellow {
+    background-color: #f0de4e;
+    color: #333;
+}
+
+/* Texto escuro para legibilidade */
+.tag-green {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.tag-blue {
+    background-color: #5bc0de;
+    color: white;
+}
 
 /* Usado no Painel (Dashboard) para a borda e nome do paciente */
-.patient-card.priority-red, .name.priority-red       { border-color: #d9534f; color: #d9534f; }
-.patient-card.priority-orange, .name.priority-orange { border-color: #f0ad4e; color: #f0ad4e; }
-.patient-card.priority-yellow, .name.priority-yellow { border-color: #f0de4e; color: #cba808; }
-.patient-card.priority-green, .name.priority-green   { border-color: #5cb85c; color: #5cb85c; }
-.patient-card.priority-blue, .name.priority-blue     { border-color: #5bc0de; color: #5bc0de; }
+.patient-card.priority-red, .name.priority-red {
+    border-color: #d9534f;
+    color: #d9534f;
+}
+
+.patient-card.priority-orange, .name.priority-orange {
+    border-color: #f0ad4e;
+    color: #f0ad4e;
+}
+
+.patient-card.priority-yellow, .name.priority-yellow {
+    border-color: #f0de4e;
+    color: #cba808;
+}
+
+.patient-card.priority-green, .name.priority-green {
+    border-color: #5cb85c;
+    color: #5cb85c;
+}
+
+.patient-card.priority-blue, .name.priority-blue {
+    border-color: #5bc0de;
+    color: #5bc0de;
+}
 
 /* --- Estilos para o Dashboard --- */
 .dashboard-grid {
     width: 100%;
     max-width: 1200px;
-    display: flex; /* Alterado para flex para melhor alinhamento */
+    display: flex;
+    /* Alterado para flex para melhor alinhamento */
     justify-content: center;
     gap: 2rem;
-    flex-wrap: wrap; /* Permite que os cards quebrem a linha */
+    flex-wrap: wrap;
+    /* Permite que os cards quebrem a linha */
 }
 
 .patient-card {
     background-color: var(--white);
     border-radius: 12px;
     box-shadow: 0 5px 15px var(--shadow-light);
-    border-left: 6px solid; /* A borda colorida fica só na esquerda */
+    border-left: 6px solid;
+    /* A borda colorida fica só na esquerda */
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1.5rem;
     transition: all 0.3s ease;
-    width: 380px; /* Largura fixa para consistência */
+    width: 380px;
+    /* Largura fixa para consistência */
 }
 
 .patient-card:hover {
@@ -470,14 +554,16 @@ body {
 
 
 .patient-info .name {
-    font-size: 1.5rem; /* Nome maior */
+    font-size: 1.5rem;
+    /* Nome maior */
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0.5rem;
 }
 
 .patient-info .name span {
-    display: block; /* Para o sobrenome ficar abaixo do nome */
+    display: block;
+    /* Para o sobrenome ficar abaixo do nome */
 }
 
 .patient-info .details {
@@ -487,6 +573,7 @@ body {
     color: var(--text-light);
     font-size: 0.9rem;
 }
+
 .patient-info .details i {
     width: 16px;
     height: 16px;
@@ -494,8 +581,10 @@ body {
 
 .patient-actions {
     display: flex;
-    flex-direction: column; /* Coloca a tag acima do botão */
-    align-items: flex-end; /* Alinha à direita */
+    flex-direction: column;
+    /* Coloca a tag acima do botão */
+    align-items: flex-end;
+    /* Alinha à direita */
     gap: 1rem;
 }
 
@@ -510,7 +599,8 @@ body {
 
 /* Novo estilo para o botão "Chamar" */
 .btn-call {
-    background-image: none; /* Remove o gradiente padrão */
+    background-image: none;
+    /* Remove o gradiente padrão */
     background-color: var(--primary-blue);
     border-radius: 50px;
     padding: 0.6rem 1.2rem;
@@ -518,7 +608,8 @@ body {
 
 .btn-call:hover {
     background-color: var(--primary-blue-dark);
-    transform: translateY(-2px); /* Mantém um efeito sutil */
+    transform: translateY(-2px);
+    /* Mantém um efeito sutil */
 }
 
 /* ================================================= */
@@ -533,7 +624,8 @@ body {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    width: 100%; /* Garante que o painel ocupe toda a largura */
+    width: 100%;
+    /* Garante que o painel ocupe toda a largura */
 }
 
 .panel-header {
@@ -680,68 +772,88 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* ================================== */
+    /* --- ESTILOS PARA O MODAL DE LOGIN --- */
+    /* ================================== */
 
-/* --- SEÇÃO DE RESPONSIVIDADE PARA O PAINEL --- */
-
-@media (max-width: 992px) {
-    .panel-main {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .calling-now .patient-name {
-        font-size: 3.5rem;
-    }
-
-    .panel-header h1 {
-        font-size: 1.8rem;
-    }
-
-    .clock #clock-time {
-        font-size: 2.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .call-panel-page {
-        padding: 1.5rem;
-    }
-
-    .panel-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 1rem;
-    }
-
-    .clock {
-        text-align: center;
+    .login-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1001;
+        backdrop-filter: blur(5px);
     }
 
-    .calling-now .patient-name {
-        font-size: 2.8rem;
+    .login-modal {
+        background-color: var(--white);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
     }
 
-    .next-patients li {
-        font-size: 1.1rem;
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
     }
 
-    .close-panel-btn {
-        top: 10px;
-        right: 10px;
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--text-dark);
     }
-}
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        font-weight: 300;
+        color: var(--text-light);
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .login-modal p {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .login-modal .input-field {
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+
+    .login-modal .btn {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    #login-error-message {
+        margin-bottom: 1rem;
+        text-align: center;
+    }
 
 /* ================================================= */
-/* --- SEÇÃO DE RESPONSIVIDADE (MOBILE-FIRST) --- */
+/* --- SEÇÃO DE RESPONSIVIDADE (UNIFICADA) --- */
 /* ================================================= */
 
 /* Para tablets e desktops menores (a partir de 992px) */
 @media (max-width: 992px) {
     .health-portal {
-        flex-direction: column; /* ESSA É A LINHA QUE CORRIGE A TELA PRINCIPAL */
+        flex-direction: column;
         gap: 3rem;
         padding: 2.5rem;
     }
@@ -755,7 +867,7 @@ body {
         max-width: 100%;
         margin: 0 auto;
     }
-    
+
     .panel-main {
         grid-template-columns: 1fr;
     }
