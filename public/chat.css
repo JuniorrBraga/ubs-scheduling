@@ -172,18 +172,28 @@
     }
 }
 
-/* Responsividade para dispositivos móveis */
+/* ======================================= */
+/* --- RESPONSIVIDADE PARA O CHAT --- */
+/* ======================================= */
+
 @media (max-width: 480px) {
     .chat-window {
+        /* Ocupa a tela inteira, com pequenas margens */
         width: calc(100vw - 20px);
         height: calc(100vh - 40px);
+        
+        /* Ajusta a posição para ficar centralizado com as margens */
         bottom: 10px;
         right: 10px;
         left: 10px;
+
+        /* Remove qualquer limite máximo de largura */
         max-width: none;
     }
     
     .message {
+        /* Permite que as mensagens ocupem um pouco mais da largura */
         max-width: 90%;
     }
 }
+
