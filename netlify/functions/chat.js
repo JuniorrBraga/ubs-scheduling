@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
 
 // Diz ao Express para usar nosso roteador no caminho base.
 // O serverless-http cuidará de mapear a URL da função para este caminho.
-app.use('/', router);
+app.use('/.netlify/functions/chat', router);
 
 // Exporta o handler. Esta é a "mágica" que conecta o Express ao Netlify.
 module.exports.handler = serverless(app);
