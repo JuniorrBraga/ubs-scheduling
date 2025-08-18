@@ -2,10 +2,17 @@
 
 /* Variáveis de cor para fácil customização */
 :root {
-    --chat-primary: #005A8D; /* Azul, igual ao do projeto principal */
-    --chat-light-bg: #f1f5f9; /* Fundo cinza claro */
+    --chat-primary: #005A8D;
+    /* Azul, igual ao do projeto principal */
+    --chat-light-bg: #f1f5f9;
+    /* Fundo cinza claro */
     --chat-bubble-size: 60px;
     --chat-bubble-offset: 20px;
+}
+
+/* NOVO: Regra para travar a rolagem da página quando o chat estiver aberto */
+body.chat-is-open {
+    overflow: hidden;
 }
 
 /* Container principal que será injetado no body */
@@ -18,7 +25,8 @@
 
 /* Janela principal do chat */
 .chat-window {
-    position: fixed; /* Garante que a janela fique sobre todo o conteúdo */
+    position: fixed;
+    /* Garante que a janela fique sobre todo o conteúdo */
     bottom: 20px;
     right: 20px;
     width: 370px;
@@ -34,14 +42,16 @@
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     transform: scale(0.95);
     opacity: 0;
-    pointer-events: none; /* Desabilita interação quando escondido */
+    pointer-events: none;
+    /* Desabilita interação quando escondido */
 }
 
 /* Classe para mostrar a janela do chat */
 .chat-window.open {
     transform: scale(1);
     opacity: 1;
-    pointer-events: auto; /* Habilita interação quando visível */
+    pointer-events: auto;
+    /* Habilita interação quando visível */
 }
 
 /* Cabeçalho do Chat */
@@ -94,7 +104,8 @@
 }
 
 .ai-message {
-    background-color: #e5e7eb; /* Cinza */
+    background-color: #e5e7eb;
+    /* Cinza */
     color: #1f2937;
     border-bottom-left-radius: 4px;
     float: left;
@@ -160,14 +171,20 @@
     animation: typing 1.4s infinite ease-in-out both;
 }
 
-.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
 
 @keyframes typing {
-    0%, 80%, 100% { 
+    0%, 80%, 100% {
         transform: scale(0);
     }
-    40% { 
+
+    40% {
         transform: scale(1.0);
     }
 }
@@ -177,23 +194,24 @@
 /* ======================================= */
 
 @media (max-width: 480px) {
-    .chat-window {
-        /* Ocupa a tela inteira, com pequenas margens */
-        width: calc(100vw - 20px);
-        height: calc(100vh - 40px);
-        
-        /* Ajusta a posição para ficar centralizado com as margens */
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
+    /* DENTRO DO @media (max-width: 480px) */
 
-        /* Remove qualquer limite máximo de largura */
-        max-width: none;
-    }
-    
-    .message {
-        /* Permite que as mensagens ocupem um pouco mais da largura */
-        max-width: 90%;
+    .chat-window {
+        /* Transforma em tela cheia de verdade */
+        width: 100%;
+        height: 100%;
+
+        /* Remove todas as margens e posiciona no canto */
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+
+        /* Remove bordas arredondadas e sombra para parecer uma tela nativa */
+        border-radius: 0;
+        box-shadow: none;
+
+        /* Garante que a altura máxima seja a da tela */
+        max-height: 100vh;
     }
 }
-

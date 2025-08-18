@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Evento para fechar a janela
         closeChatBtn.addEventListener('click', () => {
             chatWindow.classList.remove('open');
+            document.body.classList.remove('chat-is-open'); // Libera a rolagem do fundo
         });
 
         // Evento para enviar mensagem
@@ -81,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.classList.add('message', `${sender}-message`);
             messageElement.textContent = text;
             messagesContainer.appendChild(messageElement);
-            // Rola para a mensagem mais recente
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- COMUNICAÇÃO COM A IA (GEMINI) VIA BACKEND ---
         async function getGeminiResponse(question) {
-            const apiUrl = 'http://localhost:3000/chat'; // URL do nosso backend
+            const apiUrl = 'http://localhost:3000/chat';
 
             try {
                 const response = await fetch(apiUrl, {
@@ -104,17 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ question: question }), // Envia a pergunta no corpo da requisição
+                    body: JSON.stringify({
+                        question: question
+                    }),
                 });
 
                 if (!response.ok) {
-                    // Se o servidor retornar um erro (ex: 500), lança uma exceção
                     throw new Error(`Erro do servidor: ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                
-                // Adiciona a resposta da IA na tela
+
                 hideTypingIndicator();
                 addMessage(data.answer, 'ai');
 
@@ -129,11 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Expõe função globalmente para ser chamada pelo script principal
         window.openChat = function() {
             chatWindow.classList.add('open');
-            // Adiciona uma mensagem de boas-vindas na primeira vez que abre
+            document.body.classList.add('chat-is-open'); // Trava a rolagem do fundo
+
             if (messagesContainer.children.length === 0) {
                 addMessage("Olá! Sou o assistente virtual da UBS. Como posso ajudar a tirar suas dúvidas sobre nossos serviços ou sobre saúde?", 'ai');
             }
         };
 
-    }, 100); // Aguarda 100ms para garantir que os elementos foram criados
-});
+    }, 100); // <-- A CHAVE E O PARÊNTESE QUE FALTAVAM ESTÃO AQUI
+
+}); // <-- FIM DO 'DOMContentLoaded'
