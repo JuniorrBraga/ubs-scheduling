@@ -22,50 +22,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- BANCO DE DADOS DAS PERGUNTAS DE TRIAGEM ---
-    const triageQuestions = {
+    const triageFlow = {
         'start': {
-            text: 'Qual o motivo principal da sua consulta hoje?',
-            icon: 'stethoscope',
+            text: 'Você apresenta algum destes sintomas de altíssimo risco?',
+            icon: 'siren',
             options: [
-                { text: 'Novo problema ou sintoma', value: 1, next: 'symptoms' },
-                { text: 'Consulta de retorno', value: 3, next: 'final' },
-                { text: 'Renovação de receita', value: 1, next: 'final' },
-                { text: 'Exames de rotina', value: 1, next: 'final' }
+                { text: 'Dor forte no peito ou falta de ar intensa', classification: 'RED' },
+                { text: 'Convulsões ou perda de consciência', classification: 'RED' },
+                { text: 'Sangramento grande e incontrolável', classification: 'RED' },
+                { text: 'Nenhum destes', next: 'checkOrange' }
             ]
         },
-        'symptoms': {
-            text: 'Você apresenta algum destes sintomas graves?',
+        'checkOrange': {
+            text: 'E quanto a estes sintomas muito urgentes?',
             icon: 'alert-triangle',
             options: [
-                { text: 'Dor no peito ou falta de ar', value: 10, next: 'fever' },
-                { text: 'Febre alta (acima de 38.5°C)', value: 5, next: 'pain' },
-                { text: 'Sangramento incomum', value: 8, next: 'pain' },
-                { text: 'Nenhum dos anteriores', value: 0, next: 'pain' }
+                { text: 'Dor de cabeça súbita e muito forte', classification: 'ORANGE' },
+                { text: 'Alteração súbita no estado mental (confusão)', classification: 'ORANGE' },
+                { text: 'Febre alta com rigidez no pescoço', classification: 'ORANGE' },
+                { text: 'Nenhum destes', next: 'checkYellow' }
             ]
         },
-        'fever': {
-            text: 'Você tem febre?',
+        'checkYellow': {
+            text: 'Por favor, avalie seus sintomas atuais:',
             icon: 'thermometer',
             options: [
-                { text: 'Sim', value: 3, next: 'pain' },
-                { text: 'Não', value: 0, next: 'pain' }
+                { text: 'Vômito persistente ou dor abdominal moderada', classification: 'YELLOW' },
+                { text: 'Febre há mais de 2 dias sem melhora', classification: 'YELLOW' },
+                { text: 'Crise de asma que não melhora com a bombinha', classification: 'YELLOW' },
+                { text: 'Nenhum destes', next: 'checkGreen' }
             ]
         },
-        'pain': {
-            text: 'Em uma escala de 0 a 10, qual o seu nível de dor?',
-            icon: 'frown',
+        'checkGreen': {
+            text: 'Seus sintomas se parecem com algum destes?',
+            icon: 'clipboard-list',
             options: [
-                { text: 'Leve (1-3)', value: 1, next: 'chronic' },
-                { text: 'Moderada (4-6)', value: 3, next: 'chronic' },
-                { text: 'Intensa (7-10)', value: 6, next: 'chronic' }
+                { text: 'Tosse, dor de garganta ou sintomas de resfriado', classification: 'GREEN' },
+                { text: 'Dor leve a moderada (ex: dor de dente, dor de ouvido)', classification: 'GREEN' },
+                { text: 'Necessidade de curativo ou troca de sonda', classification: 'GREEN' },
+                { text: 'Nenhum destes', next: 'checkBlue' }
             ]
         },
-        'chronic': {
-            text: 'Você possui alguma condição crônica?',
-            icon: 'heart-pulse',
+        'checkBlue': {
+            text: 'Qual o motivo da sua visita?',
+            icon: 'stethoscope',
             options: [
-                { text: 'Sim', value: 2, next: 'final' },
-                { text: 'Não', value: 0, next: 'final' }
+                { text: 'Renovação de receita', classification: 'BLUE' },
+                { text: 'Consulta de retorno sem novas queixas', classification: 'BLUE' },
+                { text: 'Mostrar resultado de exames', classification: 'BLUE' },
             ]
         }
     };
@@ -201,13 +205,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderTriageScreen(questionId) {
-        const question = triageQuestions[questionId];
+        // CORREÇÃO: Agora usa a variável correta 'triageFlow'
+        const question = triageFlow[questionId];
+        // CORREÇÃO: Adiciona os atributos de dados corretos para a nova lógica
         const optionsHtml = question.options.map(opt => `
-            <button data-action="answer-triage" data-value="${opt.value}" data-next="${opt.next}" class="triage-option">
-                <i data-lucide="${question.icon}"></i>
-                <span>${opt.text}</span>
-            </button>
-        `).join('');
+        <button 
+            data-action="answer-triage" 
+            data-next="${opt.next || ''}" 
+            data-classification="${opt.classification || ''}" 
+            class="triage-option">
+            <i data-lucide="${question.icon}"></i>
+            <span>${opt.text}</span>
+        </button>
+    `).join('');
 
         return `
         ${renderHeader('Triagem Inteligente')}
@@ -223,71 +233,100 @@ document.addEventListener('DOMContentLoaded', () => {
                 `}
             </div>
         </main>
-        `;
+    `;
     }
 
     function renderResultScreen() {
-        const score = state.currentTriage.score;
-        let priority, priorityLevel, icon;
+        // Objeto de configuração baseado na imagem do Protocolo de Manchester
+        const manchesterClassification = {
+            'RED': {
+                name: 'EMERGÊNCIA',
+                level: 5,
+                colorClass: 'red',
+                icon: 'siren',
+                waitTime: 'Atendimento imediato (0 min de espera)',
+                recommendation: 'Risco altíssimo. Você será atendido imediatamente. Por favor, avise a recepção agora.'
+            },
+            'ORANGE': {
+                name: 'MUITO URGENTE',
+                level: 4,
+                colorClass: 'orange',
+                icon: 'alert-triangle',
+                waitTime: 'Atendimento em até 10 minutos',
+                recommendation: 'Risco significativo. Seu atendimento é de alta prioridade. Aguarde o chamado iminente.'
+            },
+            'YELLOW': {
+                name: 'URGENTE',
+                level: 3,
+                colorClass: 'yellow',
+                icon: 'clock',
+                waitTime: 'Atendimento em até 50 minutos',
+                recommendation: 'Seu caso necessita de atendimento rápido, mas pode aguardar. Fique atento ao painel.'
+            },
+            'GREEN': {
+                name: 'POUCO URGENTE',
+                level: 2,
+                colorClass: 'green',
+                icon: 'check-circle',
+                waitTime: 'Atendimento em até 120 minutos',
+                recommendation: 'Seu caso não é uma emergência. O atendimento será realizado por ordem de chegada dentro desta prioridade.'
+            },
+            'BLUE': {
+                name: 'NÃO URGENTE',
+                level: 1,
+                colorClass: 'blue',
+                icon: 'info',
+                waitTime: 'Atendimento em até 240 minutos',
+                recommendation: 'Seu caso pode ser atendido em um horário agendado ou quando houver disponibilidade. Dirija-se à recepção.'
+            }
+        };
 
-        if (score >= 9) {
-            priority = 'Alta';
-            priorityLevel = 3;
-            icon = 'alert-triangle'; // CORRIGIDO: AlertTriangle -> alert-triangle
-        } else if (score >= 4) {
-            priority = 'Média';
-            priorityLevel = 2;
-            icon = 'clock'; // CORRIGIDO: Clock -> clock
-        } else {
-            priority = 'Baixa';
-            priorityLevel = 1;
-            icon = 'check-circle'; // CORRIGIDO: CheckCircle -> check-circle
+        const result = manchesterClassification[state.currentTriage.classification];
+
+        if (!result) {
+            console.error("Classificação inválida:", state.currentTriage.classification);
+            // Fallback para caso de erro
+            return `<h2>Ocorreu um erro na triagem. Por favor, recomece.</h2>`;
         }
 
-        const recommendations = {
-            'Alta': 'Seus sintomas indicam necessidade de atendimento prioritário. Por favor, dirija-se à recepção imediatamente.',
-            'Média': 'Seu atendimento tem prioridade moderada. Aguarde o chamado no painel.',
-            'Baixa': 'Seu caso é de baixa urgência. O atendimento será realizado em breve.'
-        };
-
-        const priorityClassMap = {
-            'Alta': 'high',
-            'Média': 'medium',
-            'Baixa': 'low'
-        };
-
-        const priorityClass = priorityClassMap[priority];
-
+        // Adiciona o paciente à fila do Firebase com os novos dados
         const newPatient = {
             name: state.currentTriage.patientName,
-            priority: priority,
-            priorityLevel: priorityLevel,
-            arrivalTime: firebase.firestore.FieldValue.serverTimestamp() // Usa o horário do servidor
+            priority: result.name, // Ex: "URGENTE"
+            priorityLevel: result.level, // Nível numérico para ordenação
+            arrivalTime: firebase.firestore.FieldValue.serverTimestamp()
         };
         patientQueueCollection.add(newPatient)
-            .then(() => console.log("Paciente adicionado ao Firestore!"))
+            .then(() => console.log("Paciente adicionado ao Firestore com classificação Manchester!"))
             .catch(e => console.error("Erro ao adicionar paciente: ", e));
 
+        // Renderiza a nova tela de resultado
         return `
         ${renderHeader('Resultado da Triagem')}
         <main class="page-content">
             <div class="content-card fade-in">
-                <div class="result-icon bg-${priorityClass}">
-                    <i data-lucide="${icon}" class="priority-${priorityClass}"></i>
+                <div class="result-icon bg-${result.colorClass}">
+                    <i data-lucide="${result.icon}" class="priority-${result.colorClass}"></i>
                 </div>
                 <h2>Olá, ${state.currentTriage.patientName}!</h2>
-                <p class="text-light" style="margin-top: -1.5rem; margin-bottom: 1rem;">Sua prioridade de atendimento é:</p>
-                <p class="result-priority priority-${priorityClass}">${priority}</p>
+                <p class="text-light" style="margin-top: -1.5rem; margin-bottom: 1rem;">Sua classificação de risco é:</p>
+                <p class="result-priority priority-${result.colorClass}">${result.name}</p>
+                
+                <div class="recommendation-box" style="margin-top: 1.5rem;">
+                    <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Tempo Estimado de Espera:</h3>
+                    <p class="text-light">${result.waitTime}</p>
+                </div>
+
                 <div class="recommendation-box">
                     <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Recomendação:</h3>
-                    <p class="text-light">${recommendations[priority]}</p>
+                    <p class="text-light">${result.recommendation}</p>
                 </div>
+                
                 <button data-action="go-home" class="btn btn-large" style="margin-top: 2rem;">Entendido</button>
             </div>
         </main>
-        `;
+    `;
     }
-
     function renderDashboardScreen() {
         // Esta função agora SÓ cria a estrutura base do dashboard.
         return `
@@ -300,7 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function renderDashboardContent() {
         const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
-            // MUDANÇA AQUI
             const timeA = a.arrivalTime.toDate().getTime();
             const timeB = b.arrivalTime.toDate().getTime();
             return b.priorityLevel - a.priorityLevel || timeA - timeB;
@@ -309,18 +347,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sortedQueue.length === 0) {
             return `
         <div class="content-card fade-in">
-            <i data-lucide="check-square" class="result-icon bg-low priority-low"></i> <h2>Nenhum paciente na fila.</h2>
+            <i data-lucide="check-square" class="result-icon bg-blue priority-blue"></i> <h2>Nenhum paciente na fila.</h2>
         </div>
         `;
         }
 
+        // NOVO MAPA DE CORES PARA O PAINEL
+        const priorityClassMap = {
+            'EMERGÊNCIA': 'red',
+            'MUITO URGENTE': 'orange',
+            'URGENTE': 'yellow',
+            'POUCO URGENTE': 'green',
+            'NÃO URGENTE': 'blue'
+        };
+
         const patientCards = sortedQueue.map((p, i) => {
-            // MUDANÇA AQUI: Converte para data antes de calcular o tempo
             const arrivalDateTime = p.arrivalTime.toDate();
             const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
 
-            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-            const priorityClass = priorityClassMap[p.priority] || 'low';
+            // Usa o novo mapa para encontrar a classe de cor correta
+            const priorityClass = priorityClassMap[p.priority] || 'blue';
 
             const nameParts = p.name.split(' ');
             const firstName = nameParts.shift();
@@ -394,8 +440,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2>Próximos Pacientes</h2>
                    <ul id="panel-next-patients">
                         ${nextPatients.map(p => {
-            const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-            const priorityClass = priorityClassMap[p.priority] || 'low';
+            const priorityClassMap = {
+                'EMERGÊNCIA': 'red',
+                'MUITO URGENTE': 'orange',
+                'URGENTE': 'yellow',
+                'POUCO URGENTE': 'green',
+                'NÃO URGENTE': 'blue'
+            };
+            const priorityClass = priorityClassMap[p.priority] || 'blue';
             const arrivalDateTime = p.arrivalTime.toDate();
             const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
             const waitTimeText = `Aguardando há ${timeWaiting} min`;
@@ -505,13 +557,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // DENTRO DO document.body.addEventListener('click', (event) => { ... });
+
         if (action === 'answer-triage') {
-            state.currentTriage.score += parseInt(target.dataset.value, 10);
-            if (target.dataset.next === 'final') {
+            const nextQuestion = target.dataset.next;
+            const classification = target.dataset.classification;
+
+            if (classification) {
+                // Se a opção já define uma classificação, a triagem acabou.
+                state.currentTriage.classification = classification;
                 state.currentPage = 'result';
                 render();
-            } else {
-                appContainer.innerHTML = renderTriageScreen(target.dataset.next);
+            } else if (nextQuestion) {
+                // Se a opção leva para a próxima pergunta, renderiza a nova tela.
+                appContainer.innerHTML = renderTriageScreen(nextQuestion);
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
                 }
@@ -637,12 +696,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!callingEl || !nextPatientsEl) return;
 
-        console.log("Atualizando o painel de forma cirúrgica...");
-
-        // Atualiza o nome de quem está sendo chamado
         callingEl.textContent = state.currentlyCalling ? (state.currentlyCalling.name || 'Aguardando...') : 'Aguardando chamada...';
 
-        // Lógica para redesenhar a lista de próximos pacientes
         const sortedQueue = [...state.patientQueue].filter(p => p.arrivalTime).sort((a, b) => {
             const timeA = a.arrivalTime.toDate().getTime();
             const timeB = b.arrivalTime.toDate().getTime();
@@ -653,21 +708,29 @@ document.addEventListener('DOMContentLoaded', () => {
             !state.currentlyCalling || p.id !== state.currentlyCalling.id
         ).slice(0, 3);
 
+        // NOVO MAPA DE CORES AQUI TAMBÉM
+        const priorityClassMap = {
+            'EMERGÊNCIA': 'red',
+            'MUITO URGENTE': 'orange',
+            'URGENTE': 'yellow',
+            'POUCO URGENTE': 'green',
+            'NÃO URGENTE': 'blue'
+        };
+
         if (nextPatients.length > 0) {
             nextPatientsEl.innerHTML = nextPatients.map(p => {
-                const priorityClassMap = { 'Alta': 'high', 'Média': 'medium', 'Baixa': 'low' };
-                const priorityClass = priorityClassMap[p.priority] || 'low';
+                const priorityClass = priorityClassMap[p.priority] || 'blue';
                 const arrivalDateTime = p.arrivalTime.toDate();
                 const timeWaiting = Math.round((new Date() - arrivalDateTime) / 60000);
                 const waitTimeText = `Aguardando há ${timeWaiting} min`;
                 return `
-                <li>
-                    <div class="patient-name-wrapper">
-                        <span>${p.name}</span>
-                        <small class="wait-time-display">${waitTimeText}</small>
-                    </div>
-                    <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
-                </li>
+            <li>
+                <div class="patient-name-wrapper">
+                    <span>${p.name}</span>
+                    <small class="wait-time-display">${waitTimeText}</small>
+                </div>
+                <span class="priority-tag tag-${priorityClass}">${p.priority}</span>
+            </li>
             `;
             }).join('');
         } else {
