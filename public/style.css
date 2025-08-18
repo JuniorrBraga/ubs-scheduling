@@ -734,3 +734,111 @@ body {
     }
 }
 
+/* ================================================= */
+/* --- SEÇÃO DE RESPONSIVIDADE (MOBILE-FIRST) --- */
+/* ================================================= */
+
+/* Para tablets e desktops menores (a partir de 992px) */
+@media (max-width: 992px) {
+    .health-portal {
+        flex-direction: column; /* ESSA É A LINHA QUE CORRIGE A TELA PRINCIPAL */
+        gap: 3rem;
+        padding: 2.5rem;
+    }
+
+    .portal-actions h2 {
+        font-size: 2.2rem;
+        text-align: center;
+    }
+
+    .actions-grid {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .panel-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Para celulares grandes (a partir de 768px) */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .portal-actions h2 {
+        font-size: 2rem;
+    }
+
+    .calling-now .patient-name {
+        font-size: 3.5rem;
+    }
+
+    .panel-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .clock #clock-time {
+        font-size: 2.5rem;
+    }
+}
+
+/* Para celulares pequenos (a partir de 576px) */
+@media (max-width: 576px) {
+    .portal-actions h2 {
+        font-size: 1.8rem;
+    }
+
+    .content-card {
+        padding: 1.5rem;
+    }
+
+    .patient-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* --- CORREÇÕES PARA O PAINEL DE CHAMADAS EM CELULAR --- */
+    .call-panel-page {
+        padding: 1.5rem;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .clock {
+        text-align: center;
+        width: 100%;
+    }
+
+    .clock #clock-time {
+        font-size: 3rem;
+        letter-spacing: -1px;
+    }
+
+    .clock #clock-date {
+        font-size: 0.9rem;
+    }
+
+    .calling-now {
+        padding: 2rem;
+    }
+
+    .calling-now .patient-name {
+        font-size: 2.8rem;
+    }
+
+    .next-patients li {
+        font-size: 1.1rem;
+    }
+
+    .close-panel-btn {
+        top: 10px;
+        right: 10px;
+    }
+}
