@@ -1,5 +1,5 @@
 // Arquivo: netlify/functions/chat.js
-// Este é o seu novo "servidor", adaptado para o Netlify.
+// Este é o seu "servidor", adaptado para o Netlify.
 
 const express = require('express');
 const cors = require('cors');
@@ -21,11 +21,12 @@ app.use(express.json());
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Cria um "roteador" para a nossa API. É uma boa prática para organizar rotas.
+// Cria um "roteador" para a nossa API.
 const router = express.Router();
 
 // --- Rota da API do Chat ---
-// Note que a rota agora é só '/', pois o caminho completo será definido abaixo.
+// A rota agora é só '/', pois o caminho completo é gerenciado pelo
+// netlify.toml e pelo serverless-http.
 router.post('/', async (req, res) => {
     try {
         const { question } = req.body;
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Nenhuma pergunta foi fornecida.' });
         }
 
-        // O prompt continua exatamente o mesmo
+        // O prompt continua exatamente o mesmo que você criou
         const prompt = `
             Você é um assistente virtual de uma Unidade Básica de Saúde (UBS).
             Sua principal função é tirar dúvidas gerais dos pacientes.
@@ -57,7 +58,6 @@ router.post('/', async (req, res) => {
             PERGUNTA DO PACIENTE: "${question}"
 
             RESPOSTA CONCISA:
-
         `;
 
         const result = await model.generateContent(prompt);
@@ -72,8 +72,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Diz ao Express para usar nosso roteador no caminho específico do Netlify
-
+// Diz ao Express para usar nosso roteador no caminho base.
+// O serverless-http cuidará de mapear a URL da função para este caminho.
 app.use('/', router);
 
 // Exporta o handler. Esta é a "mágica" que conecta o Express ao Netlify.

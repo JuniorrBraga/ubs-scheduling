@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- COMUNICAÇÃO COM A IA (GEMINI) VIA BACKEND ---
         async function getGeminiResponse(question) {
-            const apiUrl = '/.netlify/functions/chat';
+            const apiUrl = '/api/chat';
 
             try {
                 const response = await fetch(apiUrl, {
