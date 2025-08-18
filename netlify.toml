@@ -1,15 +1,4 @@
-# Arquivo: netlify.toml (deve ficar na raiz do seu projeto)
+# Arquivo: netlify.toml (VERSÃO CORRIGIDA E SIMPLIFICADA)
 
 [build]
-  # Diretório que contém os arquivos do seu site (HTML, CSS, JS do frontend)
-  publish = "public"
-  # Diretório onde suas funções serverless estão localizadas
   functions = "netlify/functions"
-
-# Regra de redirecionamento para criar uma API mais limpa
-# Isso fará com que qualquer chamada para /api/chat seja enviada
-# para a sua função em /.netlify/functions/chat
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
